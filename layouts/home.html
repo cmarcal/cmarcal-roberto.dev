@@ -18,20 +18,30 @@
 <section id="about"><h2>About</h2><div class="prose">{{ .Content }}</div></section>
 
 <section id="stack"><h2>Stack</h2>
-  <div class="grid">
+  <dl class="stack-rows">
   {{ range hugo.Data.stack }}
-    <div class="card"><h3>{{ .title }}</h3>
-      <ul class="chips">{{ range .items }}<li>{{ . }}</li>{{ end }}</ul>
+    <div class="stack-row">
+      <dt>{{ .title }}</dt>
+      <dd><ul class="chips">{{ range .items }}<li>{{ . }}</li>{{ end }}</ul></dd>
     </div>
   {{ end }}
-  </div>
+  </dl>
 </section>
 
 <section id="experience"><h2>Experience</h2>
   <ol class="timeline">
-  {{ range hugo.Data.experience }}
-    <li><span class="period">{{ .period }}</span>
-      <h3>{{ .role }} · {{ .company }}</h3><p>{{ .summary }}</p></li>
+  {{ range $i, $e := hugo.Data.experience }}
+    <li>
+    {{ if or $e.team $e.bullets }}
+      <details class="collapsible role"{{ if eq $i 0 }} open{{ end }}>
+        <summary><div>{{ partial "role-head.html" $e }}</div></summary>
+        {{ with $e.team }}<p class="team">Team: {{ . }}</p>{{ end }}
+        {{ with $e.bullets }}<ul class="bullets">{{ range . }}<li>{{ . | markdownify }}</li>{{ end }}</ul>{{ end }}
+      </details>
+    {{ else }}
+      <div class="role-head">{{ partial "role-head.html" $e }}</div>
+    {{ end }}
+    </li>
   {{ end }}
   </ol>
 </section>

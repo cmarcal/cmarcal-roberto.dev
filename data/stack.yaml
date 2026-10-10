@@ -1,8 +1,14 @@
-- title: Frontend
-  items: [JavaScript, TypeScript, React, Angular, AngularJS, Vue 2, Backbone, jQuery, HTML, CSS]
-- title: Backend
-  items: [Node.js, Fastify, REST APIs, SQL, Kafka]
-- title: Data & Experimentation
-  items: [Metabase, Data-driven development, A/B tests, Feature flags]
 - title: AI-driven development
-  items: [AI coding agents, Claude Code, Prompt & context engineering, MCP]
+  items: [AI agents, Agent skills, Harness engineering, Context and guardrails, Spec-Driven Development, TDD with agents, Git worktrees, Validation with Playwright]
+
+- title: Frontend
+  items: [React, Vue, TypeScript, JavaScript, Frontend architecture, Clean Architecture, Design systems, Storybook, Sass, Styled Components, AngularJS, Backbone, jQuery]
+
+- title: Backend and cloud
+  items: [Node.js, Fastify, Backend for Frontend, AWS, Kafka]
+
+- title: Quality and delivery
+  items: [Jest, Cypress, Playwright, Unit tests, Integration tests, E2E tests, GitHub Actions, CI/CD, Core Web Vitals, SEO]
+
+- title: Data and observability
+  items: [Metabase, Event tracking, A/B testing, Unleash, GrowthBook, Feature flags, Grafana, Prometheus, Loki, Datadog]

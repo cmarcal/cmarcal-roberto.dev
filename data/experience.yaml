@@ -1,9 +1,85 @@
-# TODO: replace with the real roles from your LinkedIn profile.
-- role: Frontend Engineer
-  company: Current company
-  period: 20XX – Present
-  summary: Building data-driven product features with Node.js (Fastify), Kafka and SQL; shipping behind feature flags and validating with A/B tests; working AI-driven.
-- role: Frontend Engineer
-  company: Previous company
-  period: 20XX – 20XX
-  summary: Built and maintained large frontends with React, Angular and Vue; migrated legacy Backbone/jQuery/AngularJS code.
+- role: Senior Software Engineer
+  company: Wellhub
+  period: Apr 2025 – Present
+  meta: Full-time, Remote
+  team: Wellbeing Access (Eligibility Validation)
+  bullets:
+    - "**AI-driven development:** led the shift to AI-driven development across the frontend projects and supported backend teams on their AI workflows. Built the skills layer (team conventions and workflows as reusable agent skills), the harness (context, tools, permissions, guardrails) and the development loop."
+    - "**Hefesto (AI agent):** built an agent that takes a Jira or GitHub Projects task to an open PR using Spec-Driven Development (SDD): a human-validated plan, a fresh agent implementing it with TDD in an isolated git worktree, and a sensor that runs the app (Playwright, curl) and feeds failures back into the loop."
+    - "**Observability:** built Grafana (Prometheus, Loki) and Datadog dashboards and alerts covering latency, error rates, logs, Core Web Vitals (LCP, TTFB, CLS), Kubernetes pods (memory, replicas, CPU usage vs. requests), Node.js event loop and heap, Kafka health, and third-party integrations such as reCAPTCHA."
+    - "**Data-driven:** introduced a data-driven culture using event tracking and product analytics. Led the frontend team in building Metabase dashboards to monitor A/B experiments (Unleash, GrowthBook) and measure feature impact."
+
+- role: Senior Software Engineer
+  company: UOL EdTech
+  period: Jan 2023 – Apr 2025
+  meta: Full-time, Remote, Brazil
+  team: Passei Direto
+  bullets:
+    - Developed and maintained integrations with payment providers such as Apple, Google Play and Adyen.
+    - Built page restrictions such as paywalls, blur and page limits.
+    - Took part in building a rewards solution for users who share materials with each other.
+    - Delivered SEO improvements.
+    - Created A/B tests for user experiments.
+
+- role: Software Engineer
+  company: OLX Brasil
+  period: Oct 2021 – Jan 2023
+  meta: Full-time
+  team: Zap+ Discovery
+  bullets:
+    - "In the second half of 2022, I was selected for an internal training program for new managers."
+    - "Zap Imóveis & Viva Real: built new features and maintained the Search Results page and the recommended properties list, and wrote unit, integration and end-to-end tests."
+    - Improved the search experience with a marketplace feature that groups identical listings, making it easier to compare the same property advertised by multiple real estate agencies.
+    - Created A/B test experiments in Google Optimize, and created and maintained tracking events to follow user flows across the portals.
+    - Created and maintained GitHub Actions pipelines, maintained the Design System, and continuously improved app performance guided by Web Vitals.
+    - Maintained and built new features in the Backend for Frontend (BFF) service.
+    - Helped kick off the rebuild of the Viva Real portal using React and Clean Architecture.
+    - "Chrome extension: built an extension (CSS, HTML, vanilla JavaScript, Mocha) that helps other teams find tracking events more easily and switch A/B test experiments without using an incognito window."
+
+- role: Web Developer
+  company: Stone Age
+  period: Sep 2019 – Oct 2021
+  meta: Full-time, Barra da Tijuca
+  team: Products
+  bullets:
+    - Implemented the frontend architecture, designed using Miro.
+    - Created the component library in Storybook.
+    - Developed an event-driven microservices architecture using React, .NET Core and Docker for scalable solutions.
+
+- role: Web Developer (part-time)
+  company: Roads
+  period: Jul 2020 – Apr 2021
+  meta: Freelance, Brazil
+  team: Engineering
+  bullets:
+    - A management system built around managing work with agile methodologies.
+    - "Main features: dashboard, checkout, layout improvements and internationalization."
+    - Maintained and developed features in Storybook.
+
+- role: Frontend Developer
+  company: DeÔnibus | Brasil by Bus
+  period: Mar 2019 – Aug 2019
+  meta: Full-time, São Paulo, Brazil
+  team: Product
+  bullets:
+    - Created static pages for SEO and the sitemap.
+    - Refactored a legacy system (Webview) into a React project.
+    - Member of the SEO chapter.
+    - Made the blog multi-language.
+
+- role: Frontend Developer
+  company: We Do Logos
+  period: Jan 2018 – Mar 2019
+  meta: Full-time, Rio de Janeiro
+  team: IT
+  bullets:
+    - Maintained a legacy system and updated the internal system.
+    - Improved SEO.
+    - Built a new product page using AngularJS.
+    - Created two internal CRMs.
+    - Refactored a legacy system into a Vue project.
+
+- role: Intern
+  company: We Do Logos
+  period: Jul 2017 – Dec 2017
+  meta: Rio de Janeiro

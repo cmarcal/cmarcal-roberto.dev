@@ -5,7 +5,7 @@ title = "Roberto Marçal"
 disableKinds = ["taxonomy", "term"]
 
 [params]
-  description = "Frontend engineer with ~10 years of experience across the JavaScript ecosystem, Node.js, data-driven development and AI-driven workflows."
+  description = "Software engineer focused on frontend, with extensive experience building web apps with React, Vue, Node.js and AWS. Today I build AI-first: I design the skills, guardrails and spec-driven workflows that let AI agents ship reliably in a real codebase."
   role = "Frontend Engineer"
   location = "Brazil"
   linkedin = "https://www.linkedin.com/in/roberto-cmarcal/"
@@ -21,3 +21,6 @@ disableKinds = ["taxonomy", "term"]
     name = "Contact"
     url = "/#contact"
     weight = 2
+
+[markup.goldmark.renderer]
+  unsafe = true

@@ -18,5 +18,35 @@
   </header>
   <main>{{ block "main" . }}{{ end }}</main>
   <footer>© {{ now.Year }} {{ site.Title }} · Built with Hugo</footer>
+  <script>
+  (function () {
+    var all = document.querySelectorAll('details.collapsible');
+    if (matchMedia('(min-width:768px)').matches) all.forEach(function (d) { d.open = true; });
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !document.body.animate) return;
+    all.forEach(function (d) {
+      var s = d.querySelector(':scope > summary');
+      s.addEventListener('click', function (e) {
+        e.preventDefault();
+        var opening = !d.open || d.classList.contains('closing');
+        if (d._a) d._a.cancel();
+        var cs = getComputedStyle(d);
+        var from = d.offsetHeight;
+        var closedH = s.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+        var to;
+        d.style.overflow = 'hidden';
+        if (opening) { d.classList.remove('closing'); d.open = true; to = d.offsetHeight; }
+        else { d.classList.add('closing'); to = closedH; }
+        var a = d._a = d.animate({ height: [from + 'px', to + 'px'] }, { duration: 280, easing: 'ease', fill: 'forwards' });
+        a.onfinish = function () {
+          if (d._a !== a) return;
+          if (!opening) { d.open = false; d.classList.remove('closing'); }
+          d.style.overflow = '';
+          d._a = null;
+          a.cancel();
+        };
+      });
+    });
+  })();
+  </script>
 </body>
 </html>
