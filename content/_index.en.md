@@ -31,9 +31,13 @@ I led the shift to AI-driven development across the frontend projects and suppor
 
 Hefesto takes a Jira or GitHub Projects task all the way to an open pull request:
 
-1. **A human-validated plan**, written from the task using spec-driven development.
-2. **A fresh agent implements it** with TDD, in an isolated git worktree.
-3. **A sensor runs the app** (Playwright, curl) and feeds failures back into the loop until it works.
+<ol class="loop">
+<li><strong>Task</strong><span>A Jira or GitHub Projects task is the starting point.</span></li>
+<li><strong>Plan</strong><span>A human-validated plan, written with spec-driven development.</span></li>
+<li><strong>Implement</strong><span>A fresh agent builds it with TDD, in an isolated git worktree.</span></li>
+<li><strong>Verify</strong><span>A sensor runs the app (Playwright, curl) and feeds failures back to the implementation, until it works.</span></li>
+<li><strong>Pull request</strong><span>An open PR, ready for human review.</span></li>
+</ol>
 
 Agents accelerate the work, people stay accountable for it.
 
