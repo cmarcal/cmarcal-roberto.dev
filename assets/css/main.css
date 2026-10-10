@@ -1,0 +1,32 @@
+:root{--bg:#fafaf7;--fg:#16181d;--muted:#5b6270;--card:#fff;--line:#e4e4de;--accent:#e4572e}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#eceef2;--muted:#9aa2b1;--card:#171a21;--line:#262a33;--accent:#ff7a52}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--accent)}
+main,.nav,footer{max-width:960px;margin:0 auto;padding-left:20px;padding-right:20px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding-top:20px;padding-bottom:20px;flex-wrap:wrap;gap:8px}
+.nav nav a{margin-left:18px;color:var(--muted);text-decoration:none}
+.nav nav a:hover,.brand{color:var(--fg)}
+.brand{font-weight:700;text-decoration:none}
+section{padding:48px 0;border-top:1px solid var(--line)}
+.hero{border-top:0;padding:72px 0 56px}
+.eyebrow{color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:.8rem}
+h1{font-size:clamp(2.2rem,6vw,3.8rem);line-height:1.1;margin:.2em 0}
+h2{font-size:1.6rem;margin:0 0 1.2rem}
+h3{margin:0 0 .5rem;font-size:1.05rem}
+.accent{color:var(--accent)}
+.lead{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.btn{display:inline-block;padding:.65em 1.2em;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;margin-right:10px}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+.chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{border:1px solid var(--line);border-radius:999px;padding:2px 12px;font-size:.88rem}
+.timeline{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid var(--line)}
+.timeline li{margin-bottom:28px;position:relative}
+.timeline li::before{content:"";position:absolute;left:-25px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.timeline p{margin:0;color:var(--muted)}
+.period{font-size:.85rem;color:var(--muted)}
+.prose{max-width:65ch}
+footer{padding-top:32px;padding-bottom:48px;color:var(--muted);font-size:.9rem}

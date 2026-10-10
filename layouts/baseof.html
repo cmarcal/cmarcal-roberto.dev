@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ site.Title }} · {{ site.Params.role }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ site.Params.description }}">
+  {{ $css := resources.Get "css/main.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="/">{{ site.Title }}</a>
+    <nav>{{ range site.Menus.main }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}</nav>
+  </header>
+  <main>{{ block "main" . }}{{ end }}</main>
+  <footer>© {{ now.Year }} {{ site.Title }} · Built with Hugo</footer>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# TODO: replace with the real roles from your LinkedIn profile.
+- role: Frontend Engineer
+  company: Current company
+  period: 20XX – Present
+  summary: Building data-driven product features with Node.js (Fastify), Kafka and SQL; shipping behind feature flags and validating with A/B tests; working AI-driven.
+- role: Frontend Engineer
+  company: Previous company
+  period: 20XX – 20XX
+  summary: Built and maintained large frontends with React, Angular and Vue; migrated legacy Backbone/jQuery/AngularJS code.

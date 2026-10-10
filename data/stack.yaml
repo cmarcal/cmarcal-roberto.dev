@@ -1,0 +1,8 @@
+- title: Frontend
+  items: [JavaScript, TypeScript, React, Angular, AngularJS, Vue 2, Backbone, jQuery, HTML, CSS]
+- title: Backend
+  items: [Node.js, Fastify, REST APIs, SQL, Kafka]
+- title: Data & Experimentation
+  items: [Metabase, Data-driven development, A/B tests, Feature flags]
+- title: AI-driven development
+  items: [AI coding agents, Claude Code, Prompt & context engineering, MCP]
