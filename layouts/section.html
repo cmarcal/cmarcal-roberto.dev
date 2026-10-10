@@ -1,18 +1,14 @@
 {{ define "main" }}
+{{ $pages := .Pages.ByDate.Reverse }}
+{{ $tags := slice }}{{ range $pages }}{{ range .Params.tags }}{{ $tags = $tags | append . }}{{ end }}{{ end }}
 <section class="hero compact">
   <h1>{{ .Title }}</h1>
   {{ with .Content }}<div class="lead">{{ . }}</div>{{ end }}
+  {{ with ($tags | uniq) }}<ul class="chips topics" aria-label="Topics">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
 </section>
-<section>
-  {{ range .Pages.ByDate.Reverse }}
-  <article class="post-item">
-    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
-    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-    {{ with .Description }}<p>{{ . }}</p>{{ else }}<p>{{ .Summary | plainify | truncate 180 }}</p>{{ end }}
-    <span class="meta">{{ .ReadingTime }} min read</span>
-  </article>
-  {{ else }}
-  <p class="lead">No articles yet. Check back soon.</p>
-  {{ end }}
+<section class="post-list">
+  {{ range first 1 $pages }}{{ partial "post-card.html" (dict "p" . "featured" true) }}{{ end }}
+  {{ with after 1 $pages }}<div class="post-grid">{{ range . }}{{ partial "post-card.html" (dict "p" . "featured" false) }}{{ end }}</div>{{ end }}
+  {{ if not $pages }}<p class="lead">No articles yet. Check back soon.</p>{{ end }}
 </section>
 {{ end }}

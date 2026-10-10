@@ -1,0 +1,8 @@
+{{ $p := .p }}
+<article class="post-card{{ if .featured }} featured{{ end }}">
+  <div class="post-meta"><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date.Format "Jan 2, 2006" }}</time><span>{{ $p.ReadingTime }} min read</span></div>
+  <h2><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h2>
+  {{ with $p.Description }}<p class="post-desc">{{ . }}</p>{{ else }}<p class="post-desc">{{ $p.Summary | plainify | truncate 180 }}</p>{{ end }}
+  {{ with $p.Params.tags }}<ul class="chips">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
+  <span class="post-cta">Read article <span aria-hidden="true">&rarr;</span></span>
+</article>

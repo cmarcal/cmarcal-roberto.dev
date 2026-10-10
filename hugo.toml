@@ -24,3 +24,6 @@ disableKinds = ["taxonomy", "term"]
 
 [markup.goldmark.renderer]
   unsafe = true
+
+[security]
+  allowContent = ['.*']
