@@ -87,9 +87,29 @@ details.collapsible>summary::-webkit-details-marker{display:none}
 details.collapsible>summary::after{content:"";width:14px;height:14px;flex-shrink:0;color:var(--accent);background:linear-gradient(currentColor,currentColor) center/100% 2px no-repeat,linear-gradient(currentColor,currentColor) center/2px 100% no-repeat;transition:transform .3s ease,background-size .3s ease}
 details.collapsible[open]:not(.closing)>summary::after{transform:rotate(180deg);background-size:100% 2px,2px 0}
 @media (prefers-reduced-motion:reduce){details.collapsible>summary::after{transition:none}}
-#about details.collapsible{border-top:1px solid var(--line);padding:14px 0}
-#about details.collapsible>summary h3{margin:0}
-#about details.collapsible[open]:not(.closing)>summary{margin-bottom:.8rem}
+.section-intro{margin:-.6rem 0 1.4rem;color:var(--muted)}
+.areas details.collapsible{position:relative;border-top:1px solid var(--line);padding:16px 0}
+.areas details.collapsible:last-of-type{border-bottom:1px solid var(--line)}
+.areas details.collapsible::before{content:"";position:absolute;left:-12px;top:18px;bottom:18px;width:3px;border-radius:2px;background:var(--link);transform:scaleY(0);transform-origin:top;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.areas details.collapsible[open]:not(.closing)::before{transform:scaleY(1)}
+.areas details.collapsible>summary{gap:16px;align-items:flex-start}
+.areas details.collapsible>summary::after{margin-top:.5rem}
+.area-num{flex-shrink:0;width:2ch;margin-top:.3rem;font-size:.9rem;font-weight:500;font-variant-numeric:tabular-nums;color:var(--muted);transition:color .3s}
+.areas details.collapsible[open]:not(.closing) .area-num{color:var(--link)}
+.area-head{flex:1;min-width:0}
+.area-head h3{margin:0;font-size:1.2rem}
+.area-head .teaser{margin:.15rem 0 0;color:var(--muted);font-size:.92rem;line-height:1.45}
+.areas details.collapsible[open]:not(.closing)>summary{margin-bottom:.8rem}
+.area-body{padding-left:calc(2ch + 16px)}
+.area-body>:first-child{margin-top:0}
+.area-body>:last-child{margin-bottom:0}
+.area-project{margin:1.6rem 0 .4rem calc(2ch + 16px);padding-top:1.4rem;border-top:1px dashed var(--line)}
+.area-project .eyebrow{margin:0 0 .3rem;color:var(--link)}
+.area-project h4{margin:0 0 .6rem;font-size:1.15rem}
+.project-intro,.project-outro{max-width:70ch;color:var(--muted);margin:0}
+.area-project .loop{margin:1.4rem 0 1.2rem}
+@media (max-width:700px){.area-body{padding-left:0}.area-project{margin-left:0}.area-head h3{font-size:1.1rem}}
+@media (prefers-reduced-motion:reduce){.areas details.collapsible::before,.area-num{transition:none}}
 .timeline details.role>summary h3{margin:0}
 .timeline details.role[open]:not(.closing)>summary{margin-bottom:.6rem}
 .timeline .role-head h3{margin:0}

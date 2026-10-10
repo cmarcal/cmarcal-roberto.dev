@@ -1,0 +1,28 @@
+- title: Frontend, in depth
+  teaser: Migrations, architecture, design systems, performance and products at scale.
+  body: |
+    - **Frameworks and migrations:** React and Vue day to day, with a long track record in AngularJS, Backbone and jQuery. I've migrated legacy systems to React and Vue, and helped kick off the rebuild of the Viva Real portal with React and Clean Architecture.
+    - **Architecture and design systems:** frontend architecture, component libraries in Storybook and design system maintenance.
+    - **Performance and SEO:** continuous performance work guided by Core Web Vitals, plus SEO improvements and static pages for sitemaps.
+    - **Quality:** unit, integration and end-to-end tests with Jest and Cypress, and CI/CD pipelines in GitHub Actions.
+    - **Product work at scale:** search results and listing grouping on the large real estate marketplaces Zap Imóveis and Viva Real, payment integrations (Apple, Google Play, Adyen), paywalls and page limits, and referral and rewards features.
+
+- title: Software engineering with AI
+  teaser: Skills, harness and validation for agents in real codebases, plus Hefesto, a task-to-PR agent.
+  hefesto: true
+  body: |
+    I led the adoption of AI in software engineering across the frontend projects and supported backend teams in evolving their own workflows. The engineering environment the agents work in has three parts:
+
+    - **Skills and conventions:** I turn the team's standards, practices and workflows into reusable skills, giving agents consistent instructions on how to develop within the project.
+    - **Engineering harness:** I structure the context, tools, permissions and guardrails that bound what agents can do and tie their work into the existing architecture and standards.
+    - **Development and validation:** I combine spec-driven development (SDD) and TDD to guide implementation and define verifiable completion criteria. Validation includes running the application, and every change gets human review.
+
+- title: Observability
+  teaser: Dashboards and alerts in Grafana and Datadog, from latency to Kafka.
+  body: |
+    I built Grafana (Prometheus, Loki) and Datadog dashboards and alerts covering latency, error rates, logs and Core Web Vitals (LCP, TTFB, CLS). They also cover Kubernetes pods (memory, replicas, CPU usage vs. requests), the Node.js event loop and heap, Kafka health, and third-party integrations such as reCAPTCHA.
+
+- title: Data-driven culture
+  teaser: Event tracking, A/B experiments and Metabase dashboards.
+  body: |
+    I introduced a data-driven culture through event tracking and product analytics, and led the frontend team in building Metabase dashboards to monitor A/B experiments (Unleash, GrowthBook) and measure feature impact.
