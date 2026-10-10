@@ -13,8 +13,11 @@
   {{ $css := resources.Get "css/main.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
   {{ range .Params.styles }}{{ with resources.Get . }}{{ $s := . | minify | fingerprint }}<link rel="stylesheet" href="{{ $s.RelPermalink }}">{{ end }}{{ end }}
+  {{ with resources.Get "js/network.js" }}{{ $n := . | minify | fingerprint }}<script src="{{ $n.RelPermalink }}" defer></script>{{ end }}
+  {{ if .IsHome }}{{ with resources.Get "js/rotator.js" }}{{ $r := . | minify | fingerprint }}<script src="{{ $r.RelPermalink }}" defer></script>{{ end }}{{ end }}
 </head>
 <body>
+  <canvas id="bg" aria-hidden="true"></canvas>
   <header class="nav">
     <a class="brand" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
     <div class="nav-end">

@@ -49,3 +49,6 @@ other = "E-mail"
 
 [feedInteractive]
 other = "Esta é a versão em texto de um artigo interativo. Leia no site:"
+
+[focusedOn]
+other = "Foco em"

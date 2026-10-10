@@ -123,3 +123,38 @@ main{flex:1}
 #about .prose>p:first-child{font-size:1.2rem;line-height:1.6;color:var(--fg);margin-top:0}
 @media (max-width:700px){#about .prose>p:first-child{font-size:1.05rem}}
 @media (prefers-reduced-motion:reduce){.tag-link{transition:none}.tag-link:hover,.tag-link:focus-visible{transform:none}}@media (max-width:480px){.tag-links{gap:6px}.tag-link{gap:6px;padding:6px 11px 6px 9px;font-size:.8rem}.tag-link svg{width:14px;height:14px}}
+
+#bg{position:fixed;top:0;left:0;z-index:-1;pointer-events:none}
+.rotator{margin:.1rem 0 0;font-size:1.15rem;color:var(--muted);min-height:1.7em}
+.rot-word{display:inline-block;color:var(--link);font-weight:500;transition:opacity .26s ease,transform .26s ease}
+.rot-word.out{opacity:0;transform:translateY(6px)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop-in{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 2px var(--accent),0 0 0 0 rgba(141,178,217,.0)}50%{box-shadow:0 0 0 2px var(--accent),0 0 24px 4px rgba(141,178,217,.28)}}
+.hero .avatar{animation:pop-in .7s ease both,float 7s ease-in-out .7s infinite,glow 5s ease-in-out .7s infinite}
+.hero-text>*{animation:rise .6s ease both}
+.hero-text>*:nth-child(2){animation-delay:.08s}
+.hero-text>*:nth-child(3){animation-delay:.16s}
+.hero-text>*:nth-child(4){animation-delay:.24s}
+.loop{list-style:none;margin:1.2rem 0 .8rem;padding:0;counter-reset:s}
+.loop li{position:relative;counter-increment:s;padding:0 0 22px 52px;margin:0}
+.loop li:last-child{padding-bottom:0}
+.loop li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-weight:700;font-size:.9rem;animation:step-lit 10s ease-in-out infinite}
+.loop li::after{content:"";position:absolute;left:16px;top:38px;bottom:4px;width:2px;background:var(--line)}
+.loop li:last-child::after{display:none}
+.loop strong{display:block;color:var(--fg);font-size:1.02rem;animation:step-text 10s ease-in-out infinite}
+.loop span{display:block;color:var(--muted);font-size:.92rem}
+.loop li:nth-child(1)::before,.loop li:nth-child(1) strong{animation-delay:0s}
+.loop li:nth-child(2)::before,.loop li:nth-child(2) strong{animation-delay:2s}
+.loop li:nth-child(3)::before,.loop li:nth-child(3) strong{animation-delay:4s}
+.loop li:nth-child(4)::before,.loop li:nth-child(4) strong{animation-delay:6s}
+.loop li:nth-child(5)::before,.loop li:nth-child(5) strong{animation-delay:8s}
+@keyframes step-lit{0%,22%{border-color:var(--accent);background:var(--accent);color:#10233a;transform:scale(1.12)}30%,100%{border-color:var(--line);background:var(--bg);color:var(--fg);transform:none}}
+@keyframes step-text{0%,22%{color:var(--link)}30%,100%{color:var(--fg)}}
+@media (min-width:760px){
+  .loop{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:18px}
+  .loop li,.loop li:last-child{padding:46px 0 0 0}
+  .loop li::after{left:44px;right:-14px;top:16px;bottom:auto;width:auto;height:2px}
+}
+@media (prefers-reduced-motion:reduce){.hero .avatar,.hero-text>*,.loop li::before,.loop strong{animation:none}.rot-word{transition:none}}

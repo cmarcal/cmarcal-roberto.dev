@@ -18,6 +18,7 @@ disableKinds = ["taxonomy", "term"]
       description = "Frontend engineer with extensive experience building web applications, from architecture and design systems to performance and testing. Today building AI-first."
       role = "Frontend Engineer"
       location = "Brazil"
+      rotating = ["Frontend architecture", "Design systems", "Web performance", "AI-driven workflows"]
     [[languages.en.menus.main]]
       name = "Articles"
       url = "articles/"
@@ -35,6 +36,7 @@ disableKinds = ["taxonomy", "term"]
       description = "Frontend Engineer com muita experiência criando aplicações web, da arquitetura e dos design systems à performance e aos testes. Hoje criando com a IA no centro do processo."
       role = "Frontend Engineer"
       location = "Brasil"
+      rotating = ["arquitetura de frontend", "design systems", "performance web", "fluxos com IA"]
     [[languages.pt-br.menus.main]]
       name = "Artigos"
       url = "articles/"

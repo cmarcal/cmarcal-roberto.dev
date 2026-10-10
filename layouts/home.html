@@ -8,6 +8,7 @@
   <div class="hero-text">
     <p class="eyebrow">{{ site.Params.role }} · {{ site.Params.location }}</p>
     <h1>{{ i18n "greeting" }} <span class="accent">{{ site.Title }}</span>.</h1>
+    {{ with site.Params.rotating }}<p class="rotator">{{ i18n "focusedOn" }} <span class="rot-word" data-words="{{ . | jsonify }}">{{ index . 0 }}</span></p>{{ end }}
     <ul class="tag-links">
       <li><a class="tag-link" href="{{ site.Params.github }}">{{ partial "icon.html" "github" }}GitHub</a></li>
       <li><a class="tag-link" href="{{ site.Params.linkedin }}">{{ partial "icon.html" "linkedin" }}LinkedIn</a></li>

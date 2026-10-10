@@ -31,9 +31,13 @@ Liderei a adoção do desenvolvimento com IA nos projetos de frontend e apoiei o
 
 O Hefesto leva uma tarefa do Jira ou do GitHub Projects até um pull request aberto:
 
-1. **Um plano validado por uma pessoa**, escrito a partir da tarefa com spec-driven development.
-2. **Um agente novo implementa o plano** com TDD, em um git worktree isolado.
-3. **Um sensor roda a aplicação** (Playwright, curl) e devolve as falhas para o ciclo, até funcionar.
+<ol class="loop">
+<li><strong>Tarefa</strong><span>Uma tarefa do Jira ou do GitHub Projects é o ponto de partida.</span></li>
+<li><strong>Plano</strong><span>Um plano validado por uma pessoa, escrito com spec-driven development.</span></li>
+<li><strong>Implementar</strong><span>Um agente novo constrói com TDD, em um git worktree isolado.</span></li>
+<li><strong>Verificar</strong><span>Um sensor roda a aplicação (Playwright, curl) e devolve as falhas para a implementação, até funcionar.</span></li>
+<li><strong>Pull request</strong><span>Um PR aberto, pronto para revisão humana.</span></li>
+</ol>
 
 Os agentes aceleram o trabalho, mas quem responde pelo resultado são as pessoas.
 
