@@ -12,7 +12,6 @@
     <ul class="tag-links">
       <li><a class="tag-link" href="{{ site.Params.github }}">{{ partial "icon.html" "github" }}GitHub</a></li>
       <li><a class="tag-link" href="{{ site.Params.linkedin }}">{{ partial "icon.html" "linkedin" }}LinkedIn</a></li>
-      <li><a class="tag-link" href="mailto:{{ site.Params.email }}">{{ partial "icon.html" "email" }}{{ i18n "email" }}</a></li>
       {{ with site.GetPage "/articles" }}{{ with .OutputFormats.Get "rss" }}<li><a class="tag-link" href="{{ .RelPermalink }}" type="application/rss+xml">{{ partial "icon.html" "rss" }}RSS</a></li>{{ end }}{{ end }}
     </ul>
   </div>
@@ -47,11 +46,5 @@
     </li>
   {{ end }}
   </ol>
-</section>
-
-<section id="contact"><h2>{{ i18n "contact" }}</h2>
-  <p><a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a> ·
-  <a href="{{ site.Params.linkedin }}">LinkedIn</a> ·
-  <a href="{{ site.Params.github }}">GitHub</a></p>
 </section>
 {{ end }}

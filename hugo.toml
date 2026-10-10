@@ -23,10 +23,6 @@ disableKinds = ["taxonomy", "term"]
       name = "Articles"
       url = "articles/"
       weight = 1
-    [[languages.en.menus.main]]
-      name = "Contact"
-      url = "#contact"
-      weight = 2
 
   [languages.pt-br]
     label = "Português (Brasil)"
@@ -41,10 +37,6 @@ disableKinds = ["taxonomy", "term"]
       name = "Artigos"
       url = "articles/"
       weight = 1
-    [[languages.pt-br.menus.main]]
-      name = "Contato"
-      url = "#contact"
-      weight = 2
 
 [markup.goldmark.renderer]
   unsafe = true
