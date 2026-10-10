@@ -31,17 +31,17 @@ I led the adoption of AI in software engineering across the frontend projects an
 <details class="collapsible">
 <summary><h3>Hefesto, an AI agent</h3></summary>
 
-Hefesto takes a Jira or GitHub Projects task all the way to an open pull request:
+Hefesto takes a Jira or GitHub Projects task to an open pull request. The point isn't connecting an agent to a task tracker: it's structuring the flow so the AI's implementation can be verified before it reaches human review. An open PR doesn't mean the change is correct.
 
 <ol class="loop">
 <li><strong>Task</strong><span>A Jira or GitHub Projects task is the starting point.</span></li>
-<li><strong>Plan</strong><span>A human-validated plan, written with spec-driven development.</span></li>
-<li><strong>Implement</strong><span>A fresh agent builds it with TDD, in an isolated git worktree.</span></li>
-<li><strong>Verify</strong><span>A sensor runs the app (Playwright, curl) and feeds failures back to the implementation, until it works.</span></li>
-<li><strong>Pull request</strong><span>An open PR, ready for human review.</span></li>
+<li><strong>Plan</strong><span>A plan written with spec-driven development and validated by a person before any code exists. It defines what "done" means as verifiable criteria.</span></li>
+<li><strong>Implement</strong><span>A fresh agent builds against the plan with TDD, in an isolated git worktree.</span></li>
+<li><strong>Verify</strong><span>A sensor runs the application (Playwright, curl) and feeds failures back to the implementation. The loop ends when the plan's criteria are met, not when the agent says it's done.</span></li>
+<li><strong>Pull request</strong><span>An open PR whose change has already been verified, ready for human review.</span></li>
 </ol>
 
-Agents accelerate the work, people stay accountable for it.
+The control points: a person validates the plan before any code is written, the work stays isolated, the running application judges the result, and a person reviews the PR. Agents accelerate the work, people stay accountable for it.
 
 </details>
 

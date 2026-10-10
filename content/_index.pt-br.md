@@ -31,17 +31,17 @@ Liderei a adoção da engenharia de software com IA nos projetos de frontend e a
 <details class="collapsible">
 <summary><h3>Hefesto, um agente de IA</h3></summary>
 
-O Hefesto leva uma tarefa do Jira ou do GitHub Projects até um pull request aberto:
+O Hefesto leva uma tarefa do Jira ou do GitHub Projects até um pull request aberto. O ponto não é conectar um agente a um gerenciador de tarefas, e sim estruturar o fluxo para que a implementação feita pela IA possa ser verificada antes de chegar à revisão humana. Um PR aberto não significa que a mudança está correta.
 
 <ol class="loop">
 <li><strong>Tarefa</strong><span>Uma tarefa do Jira ou do GitHub Projects é o ponto de partida.</span></li>
-<li><strong>Plano</strong><span>Um plano validado por uma pessoa, escrito com spec-driven development.</span></li>
-<li><strong>Implementar</strong><span>Um agente novo constrói com TDD, em um git worktree isolado.</span></li>
-<li><strong>Verificar</strong><span>Um sensor roda a aplicação (Playwright, curl) e devolve as falhas para a implementação, até funcionar.</span></li>
-<li><strong>Pull request</strong><span>Um PR aberto, pronto para revisão humana.</span></li>
+<li><strong>Plano</strong><span>Um plano escrito com spec-driven development e validado por uma pessoa antes de existir qualquer código. Ele define o que significa "pronto" em critérios verificáveis.</span></li>
+<li><strong>Implementar</strong><span>Um agente novo constrói em cima do plano com TDD, em um git worktree isolado.</span></li>
+<li><strong>Verificar</strong><span>Um sensor roda a aplicação (Playwright, curl) e devolve as falhas para a implementação. O ciclo termina quando os critérios do plano são atendidos, e não quando o agente diz que terminou.</span></li>
+<li><strong>Pull request</strong><span>Um PR aberto com a mudança já verificada, pronto para revisão humana.</span></li>
 </ol>
 
-Os agentes aceleram o trabalho, mas quem responde pelo resultado são as pessoas.
+Os pontos de controle: uma pessoa valida o plano antes de qualquer código, o trabalho fica isolado, a aplicação em execução julga o resultado e uma pessoa revisa o PR. Os agentes aceleram o trabalho, mas quem responde pelo resultado são as pessoas.
 
 </details>
 
