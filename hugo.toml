@@ -1,6 +1,6 @@
 baseURL = "https://cmarcal.github.io/cmarcal-roberto.dev/"
 locale = "en"
-title = "Roberto Cmarcal"
+title = "Roberto Marçal"
 
 disableKinds = ["taxonomy", "term"]
 
