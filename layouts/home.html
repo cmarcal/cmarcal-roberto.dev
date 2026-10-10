@@ -1,6 +1,6 @@
-{{ define "main" }}
+﻿{{ define "main" }}
 <section class="hero">
-  <p class="eyebrow">{{ site.Params.role }} · {{ site.Params.location }}</p>
+  <p class="eyebrow">{{ site.Params.role }} Â· {{ site.Params.location }}</p>
   <h1>Hi, I'm <span class="accent">{{ site.Title }}</span>.</h1>
   <p class="lead">{{ site.Params.description }}</p>
   <p class="cta">
@@ -13,7 +13,7 @@
 
 <section id="stack"><h2>Stack</h2>
   <div class="grid">
-  {{ range site.Data.stack }}
+  {{ range hugo.Data.stack }}
     <div class="card"><h3>{{ .title }}</h3>
       <ul class="chips">{{ range .items }}<li>{{ . }}</li>{{ end }}</ul>
     </div>
@@ -23,16 +23,17 @@
 
 <section id="experience"><h2>Experience</h2>
   <ol class="timeline">
-  {{ range site.Data.experience }}
+  {{ range hugo.Data.experience }}
     <li><span class="period">{{ .period }}</span>
-      <h3>{{ .role }} · {{ .company }}</h3><p>{{ .summary }}</p></li>
+      <h3>{{ .role }} Â· {{ .company }}</h3><p>{{ .summary }}</p></li>
   {{ end }}
   </ol>
 </section>
 
 <section id="contact"><h2>Contact</h2>
-  <p><a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a> ·
-  <a href="{{ site.Params.linkedin }}">LinkedIn</a> ·
+  <p><a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a> Â·
+  <a href="{{ site.Params.linkedin }}">LinkedIn</a> Â·
   <a href="{{ site.Params.github }}">GitHub</a></p>
 </section>
 {{ end }}
+

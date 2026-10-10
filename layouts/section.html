@@ -1,0 +1,18 @@
+{{ define "main" }}
+<section class="hero compact">
+  <h1>{{ .Title }}</h1>
+  {{ with .Content }}<div class="lead">{{ . }}</div>{{ end }}
+</section>
+<section>
+  {{ range .Pages.ByDate.Reverse }}
+  <article class="post-item">
+    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    {{ with .Description }}<p>{{ . }}</p>{{ else }}<p>{{ .Summary | plainify | truncate 180 }}</p>{{ end }}
+    <span class="meta">{{ .ReadingTime }} min read</span>
+  </article>
+  {{ else }}
+  <p class="lead">No articles yet. Check back soon.</p>
+  {{ end }}
+</section>
+{{ end }}
