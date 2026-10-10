@@ -1,12 +1,18 @@
 {{ define "main" }}
 <section class="hero">
-  <p class="eyebrow">{{ site.Params.role }} · {{ site.Params.location }}</p>
-  <h1>Hi, I'm <span class="accent">{{ site.Title }}</span>.</h1>
-  <p class="lead">{{ site.Params.description }}</p>
-  <p class="cta">
-    <a class="btn" href="#contact">Get in touch</a>
-    <a class="btn ghost" href="{{ site.Params.linkedin }}">LinkedIn</a>
-  </p>
+  {{ with resources.Get "images/avatar.jpg" }}
+  {{ $img := .Fill "480x480 q85" }}
+  <img class="avatar" src="{{ $img.RelPermalink }}" width="240" height="240" alt="Portrait of {{ site.Title }}">
+  {{ end }}
+  <div class="hero-text">
+    <p class="eyebrow">{{ site.Params.role }} · {{ site.Params.location }}</p>
+    <h1>Hi, I'm <span class="accent">{{ site.Title }}</span>.</h1>
+    <p class="lead">{{ site.Params.description }}</p>
+    <p class="cta">
+      <a class="btn" href="#contact">Get in touch</a>
+      <a class="btn ghost" href="{{ site.Params.linkedin }}">LinkedIn</a>
+    </p>
+  </div>
 </section>
 
 <section id="about"><h2>About</h2><div class="prose">{{ .Content }}</div></section>

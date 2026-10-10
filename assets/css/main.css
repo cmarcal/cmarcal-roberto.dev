@@ -44,3 +44,7 @@ footer{padding-top:32px;padding-bottom:48px;color:var(--muted);font-size:.9rem}
 .prose pre{overflow-x:auto;padding:14px;border-radius:8px;font-size:.88rem}
 .prose code{font-size:.9em}
 .prose blockquote{margin:1em 0;padding-left:16px;border-left:3px solid var(--accent);color:var(--muted)}
+.hero{display:flex;align-items:center;gap:40px}
+.avatar{width:240px;height:240px;border-radius:50%;object-fit:cover;flex-shrink:0;border:4px solid var(--card);box-shadow:0 0 0 2px var(--accent)}
+.hero.compact{display:block}
+@media (max-width:700px){.hero{flex-direction:column;align-items:flex-start;gap:24px}.avatar{width:160px;height:160px}}
