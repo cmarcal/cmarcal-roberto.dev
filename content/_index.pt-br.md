@@ -2,7 +2,9 @@
 title: "Início"
 ---
 
-Sou Frontend Engineer e tenho muita experiência criando aplicações web para públicos B2B e B2C, da arquitetura e dos design systems à performance e aos testes. Minhas principais tecnologias são React, Vue, TypeScript e Node.js, com a AWS na infraestrutura.
+Sou Frontend Engineer com experiência na construção e evolução de produtos digitais em escala, combinando profundidade técnica, visão de produto e atenção à experiência do usuário. Minha atuação vai da arquitetura e dos design systems à performance, observabilidade e qualidade, com foco em soluções robustas, mensuráveis e sustentáveis. Minhas principais tecnologias são React, Vue, TypeScript e Node.js.
+
+Tenho liderado a adoção de IA no desenvolvimento de software, indo além do uso de ferramentas para projetar os sistemas, os fluxos, os guardrails e a validação que permitem aos agentes atuar em bases de código reais com autonomia, consistência e segurança. Meu foco é transformar o que a IA torna possível em engenharia de software sustentável: ampliar a capacidade dos times sem abrir mão de bons fundamentos técnicos, da qualidade e da responsabilidade humana sobre o resultado.
 
 <details class="collapsible" open>
 <summary><h3>Frontend a fundo</h3></summary>
@@ -16,30 +18,30 @@ Sou Frontend Engineer e tenho muita experiência criando aplicações web para p
 </details>
 
 <details class="collapsible" open>
-<summary><h3>Desenvolvimento com IA</h3></summary>
+<summary><h3>Engenharia de software com IA</h3></summary>
 
-Liderei a adoção do desenvolvimento com IA nos projetos de frontend e apoiei os times de backend nos fluxos deles. Não me limito a usar ferramentas de IA: eu desenho o sistema ao redor delas, para que os agentes consigam contribuir com segurança em uma base de código real:
+Liderei a adoção da engenharia de software com IA nos projetos de frontend e apoiei os times de backend na evolução de seus próprios fluxos. O ambiente de engenharia em que os agentes operam tem três partes:
 
-- **Camada de skills:** as convenções e os fluxos do time escritos como skills reutilizáveis, para que cada agente trabalhe do jeito que o time trabalha.
-- **Harness:** o contexto, as ferramentas, as permissões e os guardrails que mantêm o que os agentes produzem dentro da arquitetura e dos padrões do projeto.
-- **Ciclo de desenvolvimento:** spec-driven development (SDD) e TDD definem o que significa "pronto", a validação é feita rodando a aplicação e toda mudança passa por revisão humana.
+- **Skills e convenções:** transformo padrões, práticas e fluxos de trabalho do time em skills reutilizáveis, dando aos agentes instruções consistentes sobre como desenvolver dentro do projeto.
+- **Harness de engenharia:** estruturo o contexto, as ferramentas, as permissões e os guardrails que delimitam a atuação dos agentes e integram seu trabalho à arquitetura e aos padrões existentes.
+- **Desenvolvimento e validação:** combino spec-driven development (SDD) e TDD para orientar a implementação e definir critérios verificáveis de conclusão. A validação inclui a execução da aplicação, e toda mudança passa por revisão humana.
 
 </details>
 
 <details class="collapsible">
 <summary><h3>Hefesto, um agente de IA</h3></summary>
 
-O Hefesto leva uma tarefa do Jira ou do GitHub Projects até um pull request aberto:
+O Hefesto leva uma tarefa do Jira ou do GitHub Projects até um pull request aberto. O ponto não é conectar um agente a um gerenciador de tarefas, e sim estruturar o fluxo para que a implementação feita pela IA possa ser verificada antes de chegar à revisão humana. Um PR aberto não significa que a mudança está correta.
 
 <ol class="loop">
 <li><strong>Tarefa</strong><span>Uma tarefa do Jira ou do GitHub Projects é o ponto de partida.</span></li>
-<li><strong>Plano</strong><span>Um plano validado por uma pessoa, escrito com spec-driven development.</span></li>
-<li><strong>Implementar</strong><span>Um agente novo constrói com TDD, em um git worktree isolado.</span></li>
-<li><strong>Verificar</strong><span>Um sensor roda a aplicação (Playwright, curl) e devolve as falhas para a implementação, até funcionar.</span></li>
-<li><strong>Pull request</strong><span>Um PR aberto, pronto para revisão humana.</span></li>
+<li><strong>Plano</strong><span>Um plano escrito com spec-driven development e validado por uma pessoa antes de existir qualquer código. Ele define o que significa "pronto" em critérios verificáveis.</span></li>
+<li><strong>Implementar</strong><span>Um agente novo constrói em cima do plano com TDD, em um git worktree isolado.</span></li>
+<li><strong>Verificar</strong><span>Um sensor roda a aplicação (Playwright, curl) e devolve as falhas para a implementação. O ciclo termina quando os critérios do plano são atendidos, e não quando o agente diz que terminou.</span></li>
+<li><strong>Pull request</strong><span>Um PR aberto com a mudança já verificada, pronto para revisão humana.</span></li>
 </ol>
 
-Os agentes aceleram o trabalho, mas quem responde pelo resultado são as pessoas.
+Os pontos de controle: uma pessoa valida o plano antes de qualquer código, o trabalho fica isolado, a aplicação em execução julga o resultado e uma pessoa revisa o PR. Os agentes aceleram o trabalho, mas quem responde pelo resultado são as pessoas.
 
 </details>
 

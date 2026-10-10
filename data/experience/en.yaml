@@ -4,7 +4,7 @@
   meta: Full-time, Remote
   team: Wellbeing Access (Eligibility Validation)
   bullets:
-    - "**AI-driven development:** led the shift to AI-driven development across the frontend projects and supported backend teams on their AI workflows. Built the skills layer (team conventions and workflows as reusable agent skills), the harness (context, tools, permissions, guardrails) and the development loop."
+    - "**Software engineering with AI:** led the adoption across the frontend projects and supported backend teams on their AI workflows. Built the skills layer (team conventions and workflows as reusable agent skills), the harness (context, tools, permissions, guardrails) and the development loop."
     - "**Hefesto (AI agent):** built an agent that takes a Jira or GitHub Projects task to an open PR using Spec-Driven Development (SDD): a human-validated plan, a fresh agent implementing it with TDD in an isolated git worktree, and a sensor that runs the app (Playwright, curl) and feeds failures back into the loop."
     - "**Observability:** built Grafana (Prometheus, Loki) and Datadog dashboards and alerts covering latency, error rates, logs, Core Web Vitals (LCP, TTFB, CLS), Kubernetes pods (memory, replicas, CPU usage vs. requests), Node.js event loop and heap, Kafka health, and third-party integrations such as reCAPTCHA."
     - "**Data-driven:** introduced a data-driven culture using event tracking and product analytics. Led the frontend team in building Metabase dashboards to monitor A/B experiments (Unleash, GrowthBook) and measure feature impact."

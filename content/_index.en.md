@@ -2,7 +2,9 @@
 title: "Home"
 ---
 
-I'm a frontend engineer with extensive experience building web applications for B2B and B2C audiences, from architecture and design systems to performance and testing. My core tools are React, Vue, TypeScript and Node.js, with AWS on the infrastructure side.
+I'm a frontend engineer with experience building and evolving digital products at scale, combining technical depth, product thinking and attention to user experience. My work runs from architecture and design systems to performance, observability and quality, focused on solutions that are robust, measurable and sustainable. My core tools are React, Vue, TypeScript and Node.js.
+
+I've been leading the adoption of AI in software development, going beyond using tools to design the systems, workflows, guardrails and validation that let agents work in real codebases with autonomy, consistency and safety. My focus is turning what AI makes possible into sustainable software engineering: expanding what teams can do without giving up strong fundamentals, quality and human accountability for the result.
 
 <details class="collapsible" open>
 <summary><h3>Frontend, in depth</h3></summary>
@@ -16,30 +18,30 @@ I'm a frontend engineer with extensive experience building web applications for 
 </details>
 
 <details class="collapsible" open>
-<summary><h3>AI-driven development</h3></summary>
+<summary><h3>Software engineering with AI</h3></summary>
 
-I led the shift to AI-driven development across the frontend projects and supported backend teams on their own AI workflows. I don't just use AI tools, I design the system around them so that agents can contribute reliably to a real codebase:
+I led the adoption of AI in software engineering across the frontend projects and supported backend teams in evolving their own workflows. The engineering environment the agents work in has three parts:
 
-- **Skills layer:** team conventions and workflows written as reusable agent skills, so every agent works the way the team works.
-- **Harness:** the context, tools, permissions and guardrails that keep agent output inside the boundaries of the architecture and the standards.
-- **Development loop:** spec-driven development (SDD) and TDD define what "done" means, validation happens by running the application, and every change gets human review.
+- **Skills and conventions:** I turn the team's standards, practices and workflows into reusable skills, giving agents consistent instructions on how to develop within the project.
+- **Engineering harness:** I structure the context, tools, permissions and guardrails that bound what agents can do and tie their work into the existing architecture and standards.
+- **Development and validation:** I combine spec-driven development (SDD) and TDD to guide implementation and define verifiable completion criteria. Validation includes running the application, and every change gets human review.
 
 </details>
 
 <details class="collapsible">
 <summary><h3>Hefesto, an AI agent</h3></summary>
 
-Hefesto takes a Jira or GitHub Projects task all the way to an open pull request:
+Hefesto takes a Jira or GitHub Projects task to an open pull request. The point isn't connecting an agent to a task tracker: it's structuring the flow so the AI's implementation can be verified before it reaches human review. An open PR doesn't mean the change is correct.
 
 <ol class="loop">
 <li><strong>Task</strong><span>A Jira or GitHub Projects task is the starting point.</span></li>
-<li><strong>Plan</strong><span>A human-validated plan, written with spec-driven development.</span></li>
-<li><strong>Implement</strong><span>A fresh agent builds it with TDD, in an isolated git worktree.</span></li>
-<li><strong>Verify</strong><span>A sensor runs the app (Playwright, curl) and feeds failures back to the implementation, until it works.</span></li>
-<li><strong>Pull request</strong><span>An open PR, ready for human review.</span></li>
+<li><strong>Plan</strong><span>A plan written with spec-driven development and validated by a person before any code exists. It defines what "done" means as verifiable criteria.</span></li>
+<li><strong>Implement</strong><span>A fresh agent builds against the plan with TDD, in an isolated git worktree.</span></li>
+<li><strong>Verify</strong><span>A sensor runs the application (Playwright, curl) and feeds failures back to the implementation. The loop ends when the plan's criteria are met, not when the agent says it's done.</span></li>
+<li><strong>Pull request</strong><span>An open PR whose change has already been verified, ready for human review.</span></li>
 </ol>
 
-Agents accelerate the work, people stay accountable for it.
+The control points: a person validates the plan before any code is written, the work stays isolated, the running application judges the result, and a person reviews the PR. Agents accelerate the work, people stay accountable for it.
 
 </details>
 
