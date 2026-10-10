@@ -1,6 +1,8 @@
-﻿baseURL = "https://cmarcal.github.io/cmarcal-roberto.dev/"
+baseURL = "https://cmarcal.github.io/cmarcal-roberto.dev/"
 locale = "en"
 title = "Roberto Cmarcal"
+
+disableKinds = ["taxonomy", "term"]
 
 [params]
   description = "Frontend engineer with ~10 years of experience across the JavaScript ecosystem, Node.js, data-driven development and AI-driven workflows."
@@ -31,9 +33,3 @@ title = "Roberto Cmarcal"
     name = "Contact"
     url = "/#contact"
     weight = 5
-
-
-
-
-
-disableKinds = ["taxonomy", "term"]
