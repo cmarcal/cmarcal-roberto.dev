@@ -15,6 +15,7 @@
   {{ range .Params.styles }}{{ with resources.Get . }}{{ $s := . | minify | fingerprint }}<link rel="stylesheet" href="{{ $s.RelPermalink }}">{{ end }}{{ end }}
   {{ with resources.Get "js/network.js" }}{{ $n := . | minify | fingerprint }}<script src="{{ $n.RelPermalink }}" defer></script>{{ end }}
   {{ if .IsHome }}{{ with resources.Get "js/rotator.js" }}{{ $r := . | minify | fingerprint }}<script src="{{ $r.RelPermalink }}" defer></script>{{ end }}{{ end }}
+  {{ if .IsHome }}{{ with resources.Get "js/stack-reveal.js" }}{{ $v := . | minify | fingerprint }}<script src="{{ $v.RelPermalink }}" defer></script>{{ end }}{{ end }}
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>

@@ -53,6 +53,34 @@ footer{padding-top:32px;padding-bottom:48px;color:var(--muted);font-size:.9rem}
 .stack-row dt{font-weight:500;color:var(--muted)}
 .stack-row dd{margin:0}
 @media (max-width:700px){.stack-row{grid-template-columns:1fr}}
+.stack-row dt{transition:color .3s,opacity .6s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.stack-row .chips li{transition:border-color .3s,color .3s,transform .2s}
+@media (hover:hover){.stack-row .chips li:hover{border-color:var(--accent);transform:translateY(-2px)}}
+@supports not (animation-timeline:view()){
+  .stack-rows.reveal .stack-row:not(.in) dt{opacity:0;transform:translateX(-18px)}
+  .stack-rows.reveal .stack-row:not(.in) .chips li{opacity:0}
+  .stack-rows.reveal .stack-row.in:not(.done) .chips li{animation:chip-pop .55s cubic-bezier(.34,1.56,.64,1) backwards;animation-delay:calc(var(--i)*45ms + 120ms)}
+}
+@keyframes chip-pop{from{opacity:0;transform:translateY(14px) scale(.8)}}
+@keyframes chip-scrub{from{opacity:0;transform:translateY(22px) scale(.82)}60%{opacity:1}to{opacity:1;transform:none}}
+@keyframes title-scrub{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .stack-row dt{animation:title-scrub linear both;animation-timeline:view();animation-range:entry 5% entry 70%}
+    .stack-row .chips li{animation:chip-scrub linear both;animation-timeline:view();animation-range:entry 0% entry 100%}
+    .stack-rows .stack-row.focus.done .chips li{animation:chip-scrub linear both,chip-wave .6s ease both;animation-timeline:view(),auto;animation-range:entry 0% entry 100%,normal;animation-delay:0s,calc(var(--i)*40ms)}
+  }
+}
+.stack-rows.has-focus .stack-row{transition:opacity .35s}
+.stack-rows.has-focus .stack-row:not(.focus){opacity:.7}
+.stack-row{position:relative}
+.stack-row::before{content:"";position:absolute;left:-12px;top:18px;bottom:18px;width:3px;border-radius:2px;background:var(--link);transform:scaleY(0);transform-origin:top;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.stack-rows .stack-row.focus::before{transform:scaleY(1)}
+.stack-rows .stack-row.focus dt{color:var(--link)}
+.stack-rows .stack-row.focus .chips li{border-color:color-mix(in srgb,var(--accent) 60%,var(--line));color:var(--fg)}
+.stack-rows .stack-row.focus.done .chips li{animation:chip-wave .6s ease both;animation-delay:calc(var(--i)*40ms)}
+@keyframes chip-wave{40%{translate:0 -5px;border-color:var(--link)}}
+@media (prefers-reduced-motion:reduce){.stack-row dt,.stack-row .chips li,.stack-row::before{transition:none}.stack-row .chips li:hover{transform:none}}
 
 details.collapsible>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px}
 details.collapsible>summary::-webkit-details-marker{display:none}
