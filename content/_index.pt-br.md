@@ -2,7 +2,9 @@
 title: "Início"
 ---
 
-Sou Frontend Engineer e tenho muita experiência criando aplicações web para públicos B2B e B2C, da arquitetura e dos design systems à performance e aos testes. Minhas principais tecnologias são React, Vue, TypeScript e Node.js, com a AWS na infraestrutura.
+Sou Frontend Engineer com experiência na construção e evolução de produtos digitais em escala, combinando profundidade técnica, visão de produto e atenção à experiência do usuário. Minha atuação vai da arquitetura e dos design systems à performance, observabilidade e qualidade, com foco em soluções robustas, mensuráveis e sustentáveis. Minhas principais tecnologias são React, Vue, TypeScript e Node.js.
+
+Tenho liderado a adoção de IA no desenvolvimento de software, indo além do uso de ferramentas para projetar os sistemas, os fluxos, os guardrails e a validação que permitem aos agentes atuar em bases de código reais com autonomia, consistência e segurança. Meu foco é transformar o que a IA torna possível em engenharia de software sustentável: ampliar a capacidade dos times sem abrir mão de bons fundamentos técnicos, da qualidade e da responsabilidade humana sobre o resultado.
 
 <details class="collapsible" open>
 <summary><h3>Frontend a fundo</h3></summary>
@@ -18,7 +20,7 @@ Sou Frontend Engineer e tenho muita experiência criando aplicações web para p
 <details class="collapsible" open>
 <summary><h3>Desenvolvimento com IA</h3></summary>
 
-Liderei a adoção do desenvolvimento com IA nos projetos de frontend e apoiei os times de backend nos fluxos deles. Não me limito a usar ferramentas de IA: eu desenho o sistema ao redor delas, para que os agentes consigam contribuir com segurança em uma base de código real:
+Liderei essa transição nos projetos de frontend e apoiei os times de backend nos fluxos deles. O sistema ao redor dos agentes tem três partes:
 
 - **Camada de skills:** as convenções e os fluxos do time escritos como skills reutilizáveis, para que cada agente trabalhe do jeito que o time trabalha.
 - **Harness:** o contexto, as ferramentas, as permissões e os guardrails que mantêm o que os agentes produzem dentro da arquitetura e dos padrões do projeto.

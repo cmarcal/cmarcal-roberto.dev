@@ -2,7 +2,9 @@
 title: "Home"
 ---
 
-I'm a frontend engineer with extensive experience building web applications for B2B and B2C audiences, from architecture and design systems to performance and testing. My core tools are React, Vue, TypeScript and Node.js, with AWS on the infrastructure side.
+I'm a frontend engineer with experience building and evolving digital products at scale, combining technical depth, product thinking and attention to user experience. My work runs from architecture and design systems to performance, observability and quality, focused on solutions that are robust, measurable and sustainable. My core tools are React, Vue, TypeScript and Node.js.
+
+I've been leading the adoption of AI in software development, going beyond using tools to design the systems, workflows, guardrails and validation that let agents work in real codebases with autonomy, consistency and safety. My focus is turning what AI makes possible into sustainable software engineering: expanding what teams can do without giving up strong fundamentals, quality and human accountability for the result.
 
 <details class="collapsible" open>
 <summary><h3>Frontend, in depth</h3></summary>
@@ -18,7 +20,7 @@ I'm a frontend engineer with extensive experience building web applications for 
 <details class="collapsible" open>
 <summary><h3>AI-driven development</h3></summary>
 
-I led the shift to AI-driven development across the frontend projects and supported backend teams on their own AI workflows. I don't just use AI tools, I design the system around them so that agents can contribute reliably to a real codebase:
+I led this shift across the frontend projects and supported backend teams on their own AI workflows. The system around the agents has three parts:
 
 - **Skills layer:** team conventions and workflows written as reusable agent skills, so every agent works the way the team works.
 - **Harness:** the context, tools, permissions and guardrails that keep agent output inside the boundaries of the architecture and the standards.

@@ -15,7 +15,7 @@ disableKinds = ["taxonomy", "term"]
     locale = "en-US"
     weight = 1
     [languages.en.params]
-      description = "Frontend engineer with extensive experience building web applications, from architecture and design systems to performance and testing. Today building AI-first."
+      description = "Frontend engineer building digital products at scale, with depth in architecture, performance and quality, and leading the adoption of AI in software development."
       role = "Frontend Engineer"
       location = "Brazil"
       rotating = ["Frontend architecture", "Design systems", "Web performance", "AI-driven workflows"]
@@ -33,7 +33,7 @@ disableKinds = ["taxonomy", "term"]
     locale = "pt-BR"
     weight = 2
     [languages.pt-br.params]
-      description = "Frontend Engineer com muita experiência criando aplicações web, da arquitetura e dos design systems à performance e aos testes. Hoje criando com a IA no centro do processo."
+      description = "Frontend Engineer na construção de produtos digitais em escala, com profundidade em arquitetura, performance e qualidade, e liderando a adoção de IA no desenvolvimento de software."
       role = "Frontend Engineer"
       location = "Brasil"
       rotating = ["arquitetura de frontend", "design systems", "performance web", "fluxos com IA"]
