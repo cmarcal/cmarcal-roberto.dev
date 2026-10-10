@@ -1,0 +1,14 @@
+- title: Desenvolvimento com IA
+  items: [Agentes de IA, Skills de agentes, Harness engineering, Contexto e guardrails, Spec-Driven Development, TDD com agentes, Git worktrees, Validação com Playwright]
+
+- title: Frontend
+  items: [React, Vue, TypeScript, JavaScript, Arquitetura de frontend, Clean Architecture, Design systems, Storybook, Sass, Styled Components, AngularJS, Backbone, jQuery]
+
+- title: Backend e cloud
+  items: [Node.js, Fastify, Backend for Frontend, AWS, Kafka]
+
+- title: Qualidade e entrega
+  items: [Jest, Cypress, Playwright, Testes unitários, Testes de integração, Testes E2E, GitHub Actions, CI/CD, Core Web Vitals, SEO]
+
+- title: Dados e observabilidade
+  items: [Metabase, Rastreamento de eventos, Testes A/B, Unleash, GrowthBook, Feature flags, Grafana, Prometheus, Loki, Datadog]

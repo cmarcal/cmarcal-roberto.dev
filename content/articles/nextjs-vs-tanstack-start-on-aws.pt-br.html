@@ -1,0 +1,342 @@
+---
+title: "Next.js vs TanStack Start direto na AWS"
+date: 2026-10-10
+description: "O que muda de verdade quando o mesmo app SSR roda na mesma infraestrutura da AWS."
+tags: [AWS, Next.js, TanStack Start, SSR]
+wide: true
+styles: [articles/ssr-aws/article.css]
+scripts: [articles/ssr-aws/anim.js, articles/ssr-aws/stepper.js]
+---
+<div class="ax">
+<p class="meta">S3, CloudFront, Route 53 e Lambda, sem Vercel</p>
+<p class="sub">O que muda de verdade quando o mesmo app SSR roda na mesma infraestrutura da AWS.</p>
+<p class="lead">Coloque qualquer um dos dois atrás do CloudFront e, de fora, tudo parece igual. A diferença está nos detalhes: onde o seu código roda, como os dados são alterados, quanto tempo um conteúdo novo leva para ir ao ar e quanto trabalho de manutenção sobra para você quando algo quebra.</p>
+
+<div class="tldr">
+  <div class="card next"><h3>Next.js via OpenNext</h3><p>Já traz mais coisa pronta (ISR, otimização de imagens, middleware), mas, para isso, você precisa de mais peças na AWS e de um adaptador da comunidade.</p></div>
+  <div class="card tan"><h3>TanStack Start via Nitro</h3><p>Menos peças na AWS e uma separação mais clara entre servidor e cliente. Em compensação, traz menos recursos prontos, não tem um alvo oficial na AWS e ainda era um release candidate em novembro de 2025.</p></div>
+</div>
+<p class="note">Tudo aqui tem link para a fonte. As caixas marcadas como Opinião ou Inferência são leitura minha.</p>
+<ol class="toc" style="list-style:none"><li><a href="#flow">1. Do merge do PR até a página no navegador</a></li><li><a href="#adds">2. O que cada framework adiciona</a></li><li><a href="#code">3. Onde o seu código roda</a></li><li><a href="#fresh">4. Como o conteúdo fica atualizado</a></li><li><a href="#routes">5. Estratégia de renderização por rota</a></li><li><a href="#cwv">6. Core Web Vitals</a></li><li><a href="#ops">7. O que fica com você quando algo quebra</a></li><li><a href="#lambda">8. Indo mais fundo: Lambda e mutations</a></li></ol>
+<h2 id="flow">1. Do merge do PR até a página no navegador</h2><p>Antes de comparar os frameworks, vamos acompanhar qualquer app SSR desde o momento em que um pull request é mergeado. Clique pelos passos ou aperte o Play.</p>
+<div class="stepper" data-stepper data-play="▶ Play" data-pause="❚❚ Pausar">
+<svg viewBox="0 0 680 310" role="img" aria-label="Fluxo de deploy e de requisição: repositório, CI, S3, CloudFront, Route 53, servidor">
+  <text class="phase" x="10" y="16">Deploy · uma vez por merge</text>
+  <text class="phase" x="10" y="150">Requisição · a cada visita</text>
+
+  <path class="edge" data-e="e-ci" d="M120 55H170"/>
+  <path class="edge" data-e="e-s3" d="M290 48H500V150"/>
+  <path class="edge" data-e="e-srv" d="M290 64H650V262H620"/>
+  <path class="edge" data-e="e-b" d="M100 215H130"/>
+  <path class="edge" data-e="e-r" d="M230 215H270"/>
+  <path class="edge" data-e="e-cfs3" d="M380 205L440 178"/>
+  <path class="edge" data-e="e-cfsrv" d="M380 225L440 258"/>
+
+  <g class="node" data-n="repo"><rect class="b" x="10" y="30" width="110" height="50" rx="4"/><text x="65" y="52" text-anchor="middle">Repo Git</text><text x="65" y="68" text-anchor="middle" opacity=".6">PR → main</text></g>
+  <g class="node" data-n="ci"><rect class="b" x="170" y="30" width="120" height="50" rx="4"/><text x="230" y="52" text-anchor="middle">Pipeline de CI</text><text x="230" y="68" text-anchor="middle" opacity=".6">build + deploy</text></g>
+  <g class="node" data-n="browser"><rect class="b" x="10" y="190" width="90" height="50" rx="4"/><text x="55" y="219" text-anchor="middle">Navegador</text></g>
+  <g class="node" data-n="r53"><rect class="b" x="130" y="190" width="100" height="50" rx="4"/><text x="180" y="212" text-anchor="middle">Route 53</text><text x="180" y="228" text-anchor="middle" opacity=".6">seu domínio</text></g>
+  <g class="node" data-n="cf"><rect class="b" x="270" y="190" width="110" height="50" rx="4"/><text x="325" y="212" text-anchor="middle">CloudFront</text><text x="325" y="228" text-anchor="middle" opacity=".6">cache de borda</text></g>
+  <g class="node" data-n="s3"><rect class="b" x="440" y="150" width="180" height="44" rx="4"/><text x="530" y="169" text-anchor="middle">Bucket S3</text><text x="530" y="185" text-anchor="middle" opacity=".6">arquivos estáticos</text></g>
+  <g class="node" data-n="server"><rect class="b" x="440" y="240" width="180" height="44" rx="4"/><text x="530" y="259" text-anchor="middle">Servidor</text><text x="530" y="275" text-anchor="middle" opacity=".6">renderiza o HTML</text></g>
+</svg>
+
+<ol class="steps">
+<li><button data-title="Construa o app SSR" data-nodes="repo"><template><p>Você tem um projeto Next.js ou TanStack Start no git. As páginas são renderizadas primeiro no servidor e depois hidratadas no navegador, para ficarem interativas.</p></template>1 App</button></li>
+<li><button data-title="Faça o merge do PR na main" data-nodes="repo ci" data-edges="e-ci"><template><p>O merge na main dispara o pipeline (o GitHub Actions, por exemplo). Ainda não há nada no ar. O papel do pipeline é transformar o seu código-fonte em algo que a AWS consiga servir.</p></template>2 Merge</button></li>
+<li><button data-title="Faça o build do projeto" data-nodes="ci"><template><p>O build gera dois tipos de saída: os <b>arquivos estáticos</b> (JS, CSS e imagens com hash no nome) e o <b>código de servidor</b>, que renderiza as páginas.</p><p>A saída do Next.js precisa ser adaptada para rodar na AWS, e quem faz isso é o <a href="https://opennext.js.org/aws">OpenNext</a>. O TanStack Start gera a saída do servidor pelo <a href="https://nitro.build/deploy/providers/aws">Nitro</a>.</p></template>3 Build</button></li>
+<li><button data-title="Salve os arquivos estáticos no S3" data-nodes="ci s3" data-edges="e-s3"><template><p>Os arquivos estáticos vão para um bucket S3 privado. O nome de cada arquivo inclui um hash do conteúdo, então eles podem ficar em cache por muito tempo. O Next.js, por exemplo, marca esse tipo de asset como <code>immutable</code>, com max-age de um ano (<a href="https://nextjs.org/docs/app/guides/self-hosting">docs</a>).</p></template>4 S3</button></li>
+<li><button data-title="O CloudFront entrega esses arquivos" data-nodes="s3 cf" data-edges="e-cfs3"><template><p>O S3 só armazena arquivos. O CloudFront fica na frente dele e mantém cópias em edge locations perto dos usuários. Você também configura o bucket para que só o CloudFront consiga lê-lo.</p></template>5 CloudFront</button></li>
+<li><button data-title="O Route 53 aponta o seu domínio para ele" data-nodes="browser r53 cf" data-edges="e-b e-r"><template><p>Um registro alias no Route 53 aponta <code>seuapp.com</code> para a distribuição do CloudFront. Para ter HTTPS, você também precisa de um certificado do ACM, que tem que ser criado em <code>us-east-1</code>, porque é lá que o CloudFront o procura (<a href="https://sst.dev/docs/component/aws/nextjs">docs do SST</a>).</p></template>6 Route 53</button></li>
+<li><button data-title="Mas quem renderiza o HTML?" data-nodes="ci server" data-edges="e-srv"><template><p>O S3 não executa código, e o SSR precisa de código rodando a cada requisição. Por isso, o pipeline também faz o deploy do código de servidor em algum lugar que consiga executá-lo.</p><p>Neste artigo, esse lugar é o <b>AWS Lambda</b>, a opção serverless. Você também poderia usar containers no ECS ou um servidor Node/Docker comum (<a href="https://opennext.js.org/aws">OpenNext</a>, <a href="https://tanstack.com/start/latest/docs/framework/react/guide/hosting">hospedagem do TanStack</a>).</p></template>7 Servidor</button></li>
+<li><button data-title="Como o servidor chega aos usuários" data-nodes="browser r53 cf server" data-edges="e-b e-r e-cfsrv"><template><p>O CloudFront responde às requisições de arquivos direto do cache. O resto vai para o servidor, que devolve o HTML, e o CloudFront repassa para o navegador. Os usuários nunca falam direto com o servidor.</p><p>Os detalhes do Lambda estão na <a href="#lambda">última seção</a>, mas você não precisa deles para acompanhar o resto.</p></template>8 Usuários</button></li>
+</ol>
+<div class="stepbody" aria-live="polite"><h3></h3><div></div></div>
+<div class="stepnav"><button class="back">← Voltar</button><button class="next-step">Próximo →</button><button class="play">▶ Play</button></div>
+</div>
+<h2 id="adds">2. O que cada framework adiciona</h2>
+<p>A configuração acima é a mesma para os dois. Escolha um para ver o que ele acrescenta do lado da AWS.</p>
+<div class="seg" data-toggle="fw" role="group" aria-label="Framework">
+  <button class="n" data-value="n" aria-pressed="true">Next.js</button>
+  <button class="t" data-value="t" aria-pressed="false">TanStack Start</button>
+</div>
+
+<svg viewBox="0 0 680 300" role="img" aria-label="Caminho animado da requisição, do navegador passando pelo Route 53 e pelo CloudFront até o S3 ou o Lambda, com os serviços extras de cada framework">
+  <defs>
+    <path id="p-r53" d="M80 130H150"/>
+    <path id="p-cf" d="M270 130H330"/>
+    <path id="p-s3" d="M270 120L420 50"/>
+    <path id="p-fn" d="M270 130H420"/>
+    <path id="p-x" d="M270 140L420 215"/>
+  </defs>
+  <rect class="b" x="10" y="105" width="70" height="50" rx="4"/><text x="45" y="134" text-anchor="middle">Navegador</text>
+  <rect class="b" x="150" y="105" width="120" height="50" rx="4"/><text x="210" y="127" text-anchor="middle">Route 53</text><text x="210" y="143" text-anchor="middle" opacity=".6">alias → CF</text>
+  <rect class="b" x="150" y="190" width="120" height="40" rx="4"/><text x="210" y="214" text-anchor="middle" opacity=".7">ACM (us-east-1)</text>
+  <rect class="b" x="330" y="105" width="90" height="50" rx="4" style="stroke:var(--fg)"/><text x="375" y="134" text-anchor="middle">CloudFront</text>
+  <rect class="b" x="480" y="25" width="190" height="50" rx="4"/><text x="575" y="46" text-anchor="middle">S3 · OAC</text><text x="575" y="62" text-anchor="middle" opacity=".6">assets com hash</text>
+  <rect class="b" x="480" y="105" width="190" height="50" rx="4"/><text x="575" y="126" text-anchor="middle">Lambda URL · OAC</text><text x="575" y="142" text-anchor="middle" opacity=".6">servidor SSR</text>
+
+  <g class="xtra" data-for="fw" data-show="n"><rect class="b n" x="480" y="190" width="190" height="95" rx="4"/>
+    <text x="575" y="212" text-anchor="middle" class="next">Extras do OpenNext</text>
+    <text x="575" y="232" text-anchor="middle">Lambda de imagens</text><text x="575" y="250" text-anchor="middle">DynamoDB + SQS (ISR)</text><text x="575" y="268" text-anchor="middle">Warmer · CF Functions</text></g>
+  <g class="xtra" data-for="fw" data-show="t"><rect class="b t" x="480" y="190" width="190" height="60" rx="4"/>
+    <text x="575" y="214" text-anchor="middle" class="tan">Nitro aws_lambda</text><text x="575" y="234" text-anchor="middle">não precisa de mais nada</text></g>
+
+  <path class="l" d="M80 130H150"/><path class="l" d="M270 130H330"/><path class="l" d="M420 120L480 50"/><path class="l" d="M420 130H480"/>
+  <path class="l xtra" data-for="fw" data-show="n" d="M420 140L480 215" stroke-dasharray="4 3"/>
+
+  <circle r="5" class="dot-n"><animateMotion dur="2.4s" repeatCount="indefinite" path="M80 130H150 M270 130H330"/></circle>
+  <circle r="5" class="dot-t"><animateMotion dur="2.4s" begin="0.8s" repeatCount="indefinite" path="M420 120L480 50"/></circle>
+  <circle r="5" class="dot-n"><animateMotion dur="2.4s" begin="1.6s" repeatCount="indefinite" path="M420 130H480"/></circle>
+</svg>
+<p class="note">Aqui, o servidor é o Lambda. Falo mais sobre ele no final.</p>
+
+<div class="panel" data-for="fw" data-show="n">
+  <p class="meta">Next.js · via <a href="https://opennext.js.org/aws">OpenNext</a> · recursos segundo o <a href="https://sst.dev/docs/component/aws/nextjs">SST</a></p>
+  <ul class="chips pro"><li>SSG · SSR · ISR</li><li>Otimização de imagens</li><li>Middleware</li><li>Self-hosting documentado</li></ul>
+  <ul class="chips con"><li>Adaptador da comunidade</li><li>6+ tipos de recurso na AWS</li><li>Máximo de 25 behaviors no CloudFront</li><li>Sem build nativo no Windows</li></ul>
+</div>
+<div class="panel" data-for="fw" data-show="t">
+  <p class="meta">TanStack Start · via <a href="https://nitro.build/deploy/providers/aws">Nitro</a> · <a href="https://tanstack.com/start/latest/docs/framework/react/guide/hosting">guia de hospedagem</a></p>
+  <ul class="chips pro"><li>Pouca coisa para manter na AWS</li><li>Servidor que roda em qualquer host</li><li>Streaming opcional no Lambda</li></ul>
+  <ul class="chips con"><li>A AWS não é um alvo listado</li><li>Só receitas da comunidade</li><li>Nenhum ISR nem ferramenta de imagens à vista</li><li>Release candidate (nov/2025)</li></ul>
+</div>
+
+<h2 id="code">3. Onde o seu código roda</h2>
+<p>Esta é a maior diferença entre os dois, e quase tudo o que vem a seguir é consequência dela.</p>
+<div class="seg" data-toggle="exec" role="group" aria-label="Framework">
+  <button class="n" data-value="n" aria-pressed="true">Next.js</button>
+  <button class="t" data-value="t" aria-pressed="false">TanStack Start</button>
+</div>
+
+<svg class="flow" viewBox="0 0 680 270" role="img" aria-label="Quais componentes são enviados ao navegador em cada framework">
+  <rect class="b" x="440" y="50" width="230" height="140" rx="4"/><text x="555" y="72" text-anchor="middle" style="font-weight:700">JS no navegador</text>
+
+  <g class="xtra" data-for="exec" data-show="n">
+    <path class="l" d="M200 44V65M200 99L70 130M200 99V130M200 99L330 130"/>
+    <rect class="b" x="150" y="10" width="100" height="34" rx="4" stroke-dasharray="4 3"/><text x="200" y="31" text-anchor="middle">Layout</text>
+    <rect class="b" x="150" y="65" width="100" height="34" rx="4" stroke-dasharray="4 3"/><text x="200" y="86" text-anchor="middle">Página</text>
+    <rect class="b" x="20" y="130" width="100" height="34" rx="4" stroke-dasharray="4 3"/><text x="70" y="151" text-anchor="middle">Header</text>
+    <rect class="b" x="150" y="130" width="100" height="34" rx="4" stroke-dasharray="4 3"/><text x="200" y="151" text-anchor="middle">Gráfico</text>
+    <rect class="b n" x="280" y="130" width="100" height="34" rx="4"/><text x="330" y="151" text-anchor="middle" class="next">Botão</text>
+    <text x="135" y="195" text-anchor="middle" opacity=".7">tracejado = Server Component (só HTML + payload)</text>
+    <path class="l" d="M380 147H440"/>
+    <text x="555" y="105" text-anchor="middle">Ilha do botão</text><text x="555" y="125" text-anchor="middle">Runtime do React</text><text x="555" y="145" text-anchor="middle" opacity=".7">+ payload RSC (dados)</text>
+    <circle r="5" class="dot-n"><animateMotion dur="2s" repeatCount="indefinite" path="M380 147H440"/></circle>
+  </g>
+
+  <g class="xtra" data-for="exec" data-show="t">
+    <path class="l" d="M200 44V65M200 99L70 130M200 99V130M200 99L330 130"/>
+    <rect class="b t" x="150" y="10" width="100" height="34" rx="4"/><text x="200" y="31" text-anchor="middle">Layout</text>
+    <rect class="b t" x="150" y="65" width="100" height="34" rx="4"/><text x="200" y="86" text-anchor="middle">Página + loader</text>
+    <rect class="b t" x="20" y="130" width="100" height="34" rx="4"/><text x="70" y="151" text-anchor="middle">Header</text>
+    <rect class="b t" x="150" y="130" width="100" height="34" rx="4"/><text x="200" y="151" text-anchor="middle">Gráfico</text>
+    <rect class="b t" x="280" y="130" width="100" height="34" rx="4"/><text x="330" y="151" text-anchor="middle">Botão</text>
+    <text x="135" y="195" text-anchor="middle" opacity=".7">sólido = isomórfico: SSR, depois hidratado</text>
+    <path class="l" d="M380 147H440"/><path class="l" d="M350 225H440" stroke-dasharray="4 3"/>
+    <rect class="b" x="200" y="208" width="150" height="34" rx="4" stroke-dasharray="4 3"/><text x="275" y="229" text-anchor="middle">createServerFn()</text>
+    <text x="555" y="105" text-anchor="middle">Os 5 componentes</text><text x="555" y="125" text-anchor="middle">código do loader (roda nos dois)</text><text x="555" y="145" text-anchor="middle" class="tan">stub RPC, não o handler</text>
+    <circle r="5" class="dot-t"><animateMotion dur="2s" repeatCount="indefinite" path="M380 147H440"/></circle>
+  </g>
+</svg>
+
+<div class="panel" data-for="exec" data-show="n">
+  <ul class="chips pro"><li>Server Components por padrão (<a href="https://nextjs.org/docs/app/getting-started/server-and-client-components">docs</a>)</li><li>Os segredos ficam no servidor</li><li>Menos JS no navegador</li></ul>
+  <ul class="chips con"><li><code>'use client'</code> arrasta todo o grafo de imports</li><li>Sem React context em Server Components</li><li>As props precisam ser serializáveis</li></ul>
+  <p><b>Atenção:</b> <code>'use client'</code> marca uma fronteira no grafo de módulos, não em um componente isolado. Se você o colocar em um arquivo grande, tudo o que esse arquivo importa vai para o navegador. Use-o em componentes pequenos, lá nas folhas da árvore.</p>
+</div>
+<div class="panel" data-for="exec" data-show="t">
+  <ul class="chips pro"><li>Um só modelo mental: é React + router</li><li>Código de servidor explícito: <code>createServerFn</code></li><li>O handler do servidor nunca vai para o bundle do cliente</li></ul>
+  <ul class="chips con"><li>Isomórfico por padrão → <b>os loaders rodam também no cliente</b></li><li><code>process.env</code> no nível do módulo pode vazar</li><li>Server Components: experimental, opt-in</li></ul>
+  <p><b>Atenção:</b> a própria documentação é clara: <a href="https://tanstack.com/start/latest/docs/framework/react/guide/execution-model">"Route loaders are isomorphic"</a>. Eles rodam no cliente também, então um segredo ou uma chamada ao banco dentro de um loader é um bug esperando para acontecer. Tudo o que for sensível deve ficar atrás de <code>createServerFn</code> ou <code>createServerOnlyFn</code>.</p>
+</div>
+
+<h2 id="fresh">4. Como o conteúdo fica atualizado</h2>
+<p>Esta parte define quanta infraestrutura você roda e quanto trabalho de manutenção ela dá.</p>
+<div class="seg" data-toggle="fresh" role="group" aria-label="Framework">
+  <button class="n" data-value="n" aria-pressed="true">Next.js</button>
+  <button class="t" data-value="t" aria-pressed="false">TanStack Start</button>
+</div>
+
+<svg class="flow" viewBox="0 0 680 190" role="img" aria-label="Pipeline de atualização de conteúdo em cada framework">
+  <g class="xtra seq" style="--cycle:4s;--c:var(--next)" data-for="fresh" data-show="n">
+    <rect class="b" style="animation-delay:0.0s" x="5" y="70" width="118" height="54" rx="4"/><text x="64" y="94" text-anchor="middle">revalidateTag()</text><text x="64" y="110" text-anchor="middle" opacity=".6">sob demanda / TTL</text>
+    <rect class="b" style="animation-delay:0.8s" x="141" y="70" width="118" height="54" rx="4"/><text x="200" y="94" text-anchor="middle">DynamoDB</text><text x="200" y="110" text-anchor="middle" opacity=".6">cache de tags</text>
+    <rect class="b" style="animation-delay:1.6s" x="277" y="70" width="118" height="54" rx="4"/><text x="336" y="94" text-anchor="middle">SQS</text><text x="336" y="110" text-anchor="middle" opacity=".6">fila de revalidação</text>
+    <rect class="b" style="animation-delay:2.4s" x="413" y="70" width="118" height="54" rx="4"/><text x="472" y="94" text-anchor="middle">Fn de revalidação</text><text x="472" y="110" text-anchor="middle" opacity=".6">renderiza de novo</text>
+    <rect class="b" style="animation-delay:3.2s" x="549" y="70" width="118" height="54" rx="4"/><text x="608" y="94" text-anchor="middle">Cache (S3)</text><text x="608" y="110" text-anchor="middle" opacity=".6">HTML + RSC</text>
+    <path class="edge hot" d="M123 97H141M259 97H277M395 97H413M531 97H549"/>
+    <text x="340" y="160" text-anchor="middle" opacity=".7">a cópia antiga continua sendo servida até a nova ficar pronta</text>
+
+  </g>
+  <g class="xtra seq" style="--cycle:3.2s;--c:var(--tan)" data-for="fresh" data-show="t">
+    <rect class="b" style="animation-delay:0.0s" x="5" y="70" width="140" height="54" rx="4"/><text x="75" y="94" text-anchor="middle">git push</text><text x="75" y="110" text-anchor="middle" opacity=".6">conteúdo mudou</text>
+    <rect class="b" style="animation-delay:0.8s" x="195" y="70" width="140" height="54" rx="4"/><text x="265" y="94" text-anchor="middle">Build + prerender</text><text x="265" y="110" text-anchor="middle" opacity=".6">arquivos HTML estáticos</text>
+    <rect class="b" style="animation-delay:1.6s" x="385" y="70" width="140" height="54" rx="4"/><text x="455" y="94" text-anchor="middle">Upload para o S3</text><text x="455" y="110" text-anchor="middle" opacity=".6">novos assets com hash</text>
+    <rect class="b" style="animation-delay:2.4s" x="560" y="70" width="110" height="54" rx="4"/><text x="615" y="94" text-anchor="middle">Invalidação CF</text><text x="615" y="110" text-anchor="middle" opacity=".6">limpa os caminhos</text>
+    <path class="edge hot" d="M145 97H195M335 97H385M525 97H560"/>
+    <text x="340" y="160" text-anchor="middle" opacity=".7">ou buscar os dados ao vivo nos loaders e dispensar o prerender</text>
+
+  </g>
+</svg>
+
+<div class="panel" data-for="fresh" data-show="n">
+  <ul class="chips pro"><li>Por tempo: stale-while-revalidate</li><li>Sob demanda: tags, <code>revalidatePath</code></li><li>Atualiza o conteúdo sem redeploy</li></ul>
+  <ul class="chips con"><li>O cache e o estado das tags precisam ser compartilhados entre as instâncias</li><li>HTML e RSC precisam ser cacheados juntos</li><li>Mais peças da AWS para monitorar</li></ul>
+  <p>Há mais detalhes na documentação sobre <a href="https://nextjs.org/docs/app/guides/how-revalidation-works">como a revalidação funciona</a> e na <a href="https://sst.dev/docs/component/aws/nextjs">lista de recursos do SST</a>. Um ponto de atenção: se uma CDN cacheia o HTML e o payload RSC com TTLs diferentes, o usuário pode ver conteúdo inconsistente ao navegar no cliente.</p>
+  <p class="opinion inf">Desenhei o pipeline acima numa ordem simplificada.</p>
+  <p class="opinion">Dos pontos acima, o descompasso entre HTML e RSC é o que eu esperaria que desse problema primeiro.</p>
+</div>
+<div class="panel" data-for="fresh" data-show="t">
+  <ul class="chips pro"><li>O prerender gera arquivos estáticos comuns</li><li>O cache mais simples possível: S3 + CloudFront</li><li>Os dados de navegação vêm do cache de loaders do router</li></ul>
+  <ul class="chips con"><li>Sem ISR na <a href="https://tanstack.com/start/latest/docs/framework/react/guide/static-prerendering">documentação de prerender</a></li><li>Rotas dinâmicas só são pré-renderizadas se houver link para elas + <code>crawlLinks</code></li><li>Conteúdo novo = rebuild ou busca em runtime</li></ul>
+  <p class="opinion">Se o seu catálogo muda de hora em hora, no Start isso significa rebuilds agendados ou renderização ao vivo. Para muitos apps, tudo bem. Mas se a equipe de conteúdo espera publicar e ver no ar em segundos, compensa pagar pela estrutura do Next/OpenNext.</p>
+</div>
+
+<h2 id="routes">5. Estratégia de renderização por rota</h2>
+<div class="seg" data-toggle="route" role="group" aria-label="Framework">
+  <button class="n" data-value="n" aria-pressed="true">Next.js</button>
+  <button class="t" data-value="t" aria-pressed="false">TanStack Start</button>
+</div>
+<div class="panel lanes" data-for="route" data-show="n">
+  <div class="lane2"><span class="lab">Estática</span><span class="cell s">HTML pré-renderizado</span><span class="cell">O CloudFront serve</span><span class="cell">Cache-Control: public</span></div>
+  <div class="lane2"><span class="lab">Dinâmica</span><span class="cell s">O Lambda renderiza a cada requisição</span><span class="cell">usa cookies / headers</span><span class="cell">private, no-store</span></div>
+  <div class="lane2"><span class="lab">Streaming</span><span class="cell s">Primeiro o shell</span><span class="cell">Chunks do Suspense à medida que ficam prontos</span><span class="cell x">precisa de um caminho sem buffer</span></div>
+  <p class="note">Uma rota ser estática ou dinâmica depende das APIs que ela usa (<a href="https://nextjs.org/docs/app/guides/self-hosting">docs</a>). Você não declara isso: o Next descobre sozinho a partir do código.</p>
+<p class="opinion">O Next deduz isso pelo que o seu código toca. Dá menos trabalho, mas também mais surpresa: uma chamada aparentemente inofensiva a <code>cookies()</code> pode tornar a página dinâmica sem avisar.</p>
+</div>
+<div class="panel lanes" data-for="route" data-show="t">
+  <div class="lane2"><span class="lab"><code>ssr: true</code></span><span class="cell s">loader no servidor</span><span class="cell s">componente → HTML</span><span class="cell c">hidrata no cliente</span></div>
+  <div class="lane2"><span class="lab"><code>'data-only'</code></span><span class="cell s">loader no servidor</span><span class="cell c">componente só no cliente</span></div>
+  <div class="lane2"><span class="lab"><code>ssr: false</code></span><span class="cell c">loader no cliente</span><span class="cell c">componente no cliente</span></div>
+  <p class="note">Você declara isso rota por rota, com o <a href="https://tanstack.com/start/latest/docs/framework/react/guide/selective-ssr">SSR seletivo</a>. Uma rota filha só pode ser mais restrita que a pai, nunca mais permissiva.</p>
+<p class="opinion">O Start pede que você declare isso em cada rota. Dá mais trabalho, mas nada muda escondido por baixo dos panos.</p>
+</div>
+
+<h2 id="cwv">6. Core Web Vitals</h2>
+<p>O Google avalia a experiência da página com três números. Uma página é considerada "boa" quando atinge a meta em 75% das visitas (<a href="https://web.dev/articles/vitals">web.dev</a>).</p>
+<div class="tiles fadein">
+  <div class="tile" style="border-color:var(--next)">LCP<b>≤ 2,5 s</b>conteúdo principal visível</div>
+  <div class="tile" style="border-color:var(--tan)">INP<b>≤ 200 ms</b>reage a toques e cliques</div>
+  <div class="tile">CLS<b>≤ 0,1</b>nada pula de lugar</div>
+</div>
+
+<h3>O que o framework não decide</h3>
+<p>Um primeiro byte lento (TTFB) prejudica o LCP, mas o TTFB não é um dos três vitals e, em grande parte, tem pouco a ver com o framework. Ele depende da rapidez da sua API e do banco de dados, da distância entre o servidor e o usuário e de o CloudFront conseguir ou não cachear a resposta (<a href="https://web.dev/articles/ttfb">web.dev</a>). Uma página renderizada no servidor pode até ter um TTFB maior que uma renderizada no cliente e mesmo assim ganhar no LCP. Então não escolha um framework por causa do TTFB. Comece corrigindo a chamada de API mais lenta.</p>
+
+<h3>Onde os frameworks de fato diferem</h3>
+<div class="scroll fadein"><table>
+<tr><th>Item</th><th class="next">Next.js</th><th class="tan">TanStack Start</th><th>Quem leva</th></tr>
+<tr><td>LCP · imagens</td><td>Otimização de imagens embutida (com um Lambda próprio na AWS)</td><td><code>&lt;img&gt;</code> comum, seguindo o checklist abaixo, servido do S3 pelo CloudFront</td><td><span class="flag">Empate</span> se você seguir o checklist; o Next automatiza o dimensionamento</td></tr>
+<tr><td>LCP · HTML em cache</td><td>Páginas totalmente estáticas são <code>public</code>, então o CloudFront consegue cacheá-las, e o ISR as mantém atualizadas. Páginas dinâmicas são <code>private, no-store</code> e sempre chegam ao servidor (<a href="https://nextjs.org/docs/app/guides/self-hosting">docs</a>)</td><td>Páginas pré-renderizadas são arquivos comuns, também cacheáveis (<a href="https://tanstack.com/start/latest/docs/framework/react/guide/static-prerendering">docs</a>). Sem ISR, conteúdo novo exige rebuild</td><td><span class="flag">Empate nas estáticas</span></td></tr>
+<tr><td>LCP · streaming</td><td>Faz streaming com Suspense</td><td>SSR com streaming (<a href="https://www.infoq.com/news/2025/11/tanstack-start-v1">InfoQ</a>)</td><td><span class="flag">Empate</span>, desde que nada no caminho faça buffer</td></tr>
+<tr><td>INP · JS no navegador</td><td>Server Components não enviam JS próprio; só as partes com <code>'use client'</code> são hidratadas (<a href="https://nextjs.org/docs/app/getting-started/server-and-client-components">docs</a>)</td><td>Os componentes são renderizados no servidor e hidratados por padrão (<a href="https://tanstack.com/start/latest/docs/framework/react/start-vs-nextjs">docs</a>)</td><td><span class="flag">Next, em páginas com muito conteúdo</span></td></tr>
+<tr><td>CLS</td><td>Depende sobretudo do seu markup: tamanho das imagens, fontes, banners que carregam tarde</td><td>Igual</td><td><span class="flag">Empate</span></td></tr>
+</table></div>
+
+<h3>Uma boa imagem de LCP no TanStack Start</h3>
+<p>Estas práticas vêm do <a href="https://web.dev/articles/optimize-lcp">guia de LCP do web.dev</a> e valem para qualquer framework:</p>
+<ul class="chips pro">
+  <li>Coloque a imagem no HTML renderizado no servidor</li>
+  <li><code>fetchpriority="high"</code> só na imagem principal (hero)</li>
+  <li>Nunca use <code>loading="lazy"</code> nela</li>
+  <li><code>srcset</code> para o tamanho certo</li>
+  <li>AVIF ou WebP</li>
+</ul>
+<pre>// routes/index.tsx
+export const Route = createFileRoute('/')({
+  head: () =&gt; ({
+    links: [
+      { rel: 'preload', as: 'image', href: '/img/hero-1200.avif', fetchPriority: 'high' },
+    ],
+  }),
+  component: Home,
+})
+
+const Home = () =&gt; (
+  &lt;img
+    src="/img/hero-1200.avif"
+    srcSet="/img/hero-600.avif 600w, /img/hero-1200.avif 1200w"
+    sizes="100vw"
+    width={1200}
+    height={630}
+    fetchPriority="high"
+    alt="Football pitch at sunset"
+  /&gt;
+)</pre>
+<p class="note">No Start, você adiciona tags ao head da página pela opção <code>head</code> da rota (<a href="https://tanstack.com/router/latest/docs/framework/react/guide/document-head-management">docs</a>). A documentação mostra um preload de fonte, então a versão com imagem acima é uma adaptação minha. Os arquivos ficam no S3 e o CloudFront os cacheia como qualquer outro asset. Como o <code>&lt;img&gt;</code> já está no HTML renderizado no servidor, o preload é opcional; ele faz mais diferença quando a imagem é referenciada a partir de CSS ou JavaScript.</p>
+
+<p>Um teste público mediu 116 KB de JavaScript no cliente para o TanStack Start contra 193 KB para o Next.js, no mesmo app de dashboard (<a href="https://blog.logrocket.com/tanstack-start-rsc-vs-next-js-rsc-performance-dx-production-readiness/">LogRocket</a>). É um único app, então leia como "o runtime do framework pode pesar", e não como "um sempre ganha". A própria página de comparação do TanStack <a href="https://tanstack.com/start/latest/docs/framework/react/start-vs-nextjs">se recusa a apontar um vencedor em tamanho de runtime</a>.</p>
+
+<p>Não encontrei <b>nenhuma comparação medida de Core Web Vitals</b> entre os dois. Rode o Lighthouse e olhe os dados de campo (CrUX) no seu próprio app.</p>
+<p class="opinion">Um site de conteúdo, com poucas partes interativas, aproveita mais os Server Components e o pipeline de imagens do Next. Um app muito interativo envia a maior parte do JS em qualquer um dos dois, então a diferença diminui.</p>
+
+<h2 id="ops">7. O que fica com você quando algo quebra</h2>
+<div class="seg" data-toggle="ops" role="group" aria-label="Framework">
+  <button class="n" data-value="n" aria-pressed="true">Next.js</button>
+  <button class="t" data-value="t" aria-pressed="false">TanStack Start</button>
+</div>
+<div class="panel" data-for="ops" data-show="n">
+  <ul class="chips con"><li>O adaptador precisa acompanhar os lançamentos do Next</li><li>Os mantenedores têm capacidade limitada (<a href="https://opennext.js.org/aws">OpenNext</a>)</li><li>25 behaviors por distribuição do CloudFront</li><li>Memória e cold starts do Lambda de imagens</li><li>Bugs de consistência de cache e de tags</li></ul>
+  <p class="opinion">A superfície de falha é grande, mas muita gente roda essa combinação, então a maioria dos erros dá para achar numa busca. Fixe as versões do Next e do OpenNext juntas e atualize as duas de uma vez.</p>
+</div>
+<div class="panel" data-for="ops" data-show="t">
+  <ul class="chips con"><li>Release candidate em nov/2025 (<a href="https://www.infoq.com/news/2025/11/tanstack-start-v1">InfoQ</a>)</li><li>Plugin do Nitro para o Vite "under active development"</li><li>Sem runbook oficial para a AWS</li><li>Você mesmo constrói as camadas de imagem e de cache</li></ul>
+  <p class="opinion">A superfície de falha é menor, mas menos gente já passou por ali. Quando algo quebrar, você vai ler mais o código do Nitro e do Start do que respostas no Stack Overflow. Conte com isso e confira o status atual do release antes de decidir.</p>
+</div>
+
+<h2 id="lambda">8. Indo mais fundo: Lambda e mutations</h2><p>Esta parte é opcional. Você pode pulá-la e ainda assim tomar a decisão.</p><h3>Como uma mutation chega ao Lambda</h3>
+<p>Posts de formulário e server functions viram uma chamada HTTPS que passa pelo CloudFront até a sua função. Aqui, cada framework tende a falhar de um jeito diferente.</p>
+<div class="seg" data-toggle="mut" role="group" aria-label="Framework">
+  <button class="n" data-value="n" aria-pressed="true">Next.js</button>
+  <button class="t" data-value="t" aria-pressed="false">TanStack Start</button>
+</div>
+
+<svg class="flow" viewBox="0 0 680 250" role="img" aria-label="Uma requisição de mutation indo do navegador, pelo CloudFront, até uma ou mais instâncias do Lambda">
+  <rect class="b" x="10" y="95" width="90" height="50" rx="4"/><text x="55" y="124" text-anchor="middle">Navegador</text>
+  <rect class="b" x="230" y="95" width="110" height="50" rx="4" style="stroke:var(--fg)"/><text x="285" y="124" text-anchor="middle">CloudFront</text>
+  <path class="l" d="M100 120H230"/>
+  <text x="165" y="110" text-anchor="middle">POST</text>
+  <text x="285" y="175" text-anchor="middle" opacity=".8">O OAC exige x-amz-content-sha256</text>
+  <text x="285" y="192" text-anchor="middle" opacity=".6">(nos dois frameworks)</text>
+
+  <g class="xtra" data-for="mut" data-show="n">
+    <path class="l" d="M340 110L470 60M340 130L470 190"/>
+    <rect class="b n" x="470" y="30" width="200" height="60" rx="4"/><text x="570" y="55" text-anchor="middle">Instância A</text><text x="570" y="73" text-anchor="middle" opacity=".7">criptografa variáveis de closure</text>
+    <rect class="b n" x="470" y="160" width="200" height="60" rx="4"/><text x="570" y="185" text-anchor="middle">Instância B</text><text x="570" y="203" text-anchor="middle" class="next">precisa compartilhar a chave</text>
+    <circle r="5" class="dot-n"><animateMotion dur="2.4s" repeatCount="indefinite" path="M100 120H230 M340 110L470 60"/></circle>
+    <circle r="5" class="dot-n"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite" path="M100 120H230 M340 130L470 190"/></circle>
+  </g>
+  <g class="xtra" data-for="mut" data-show="t">
+    <path class="l" d="M340 120H470"/>
+    <rect class="b t" x="470" y="70" width="200" height="100" rx="4"/><text x="570" y="95" text-anchor="middle">handler do createServerFn</text>
+    <text x="570" y="117" text-anchor="middle" opacity=".7">validador → handler</text><text x="570" y="137" text-anchor="middle" class="tan">checagem de same-origin / CSRF</text>
+    <circle r="5" class="dot-t"><animateMotion dur="2s" repeatCount="indefinite" path="M100 120H230 M340 120H470"/></circle>
+  </g>
+</svg>
+
+<div class="panel" data-for="mut" data-show="n">
+  <ul class="chips con"><li>Lambda = várias instâncias</li><li>Defina <code>NEXT_SERVER_ACTIONS_ENCRYPTION_KEY</code> ou você vai tomar um "Failed to find Server Action"</li><li>Em deploys graduais, defina <code>deploymentId</code></li></ul>
+  <p>Fonte: o <a href="https://nextjs.org/docs/app/guides/self-hosting">guia de self-hosting</a>, que descreve isso para configurações com vários servidores.</p>
+  <p class="opinion inf">O Lambda roda várias instâncias, então estou aplicando essa orientação a ele. A documentação não diz isso especificamente sobre o Lambda.</p>
+</div>
+<div class="panel" data-for="mut" data-show="t">
+  <ul class="chips pro"><li>O build troca o handler por um stub RPC</li><li>O validador (ex.: Zod) é parte central do design</li><li>Middleware de CSRF por padrão</li></ul>
+  <ul class="chips con"><li>Só same-origin: APIs públicas precisam de server routes</li><li>Ao definir <code>src/start.ts</code>, você precisa recolocar o CSRF</li><li>A autenticação fica em cada handler</li></ul>
+  <p>Do <a href="https://tanstack.com/start/latest/docs/framework/react/guide/server-functions">guia de server functions</a>: <code>beforeLoad</code> "is not the data boundary".</p>
+  <p class="opinion">Trate toda server function como um endpoint público e faça a autorização dentro dela. O mesmo vale para as Server Actions do Next.</p>
+</div>
+
+<h3>Armadilhas que valem para os dois</h3>
+<ul class="chips con">
+  <li>Requisições POST pelo OAC exigem <code>x-amz-content-sha256</code></li>
+  <li>Nada no caminho pode fazer buffer de respostas em streaming</li>
+  <li>Com muitas instâncias do Lambda, o Next precisa de cache compartilhado e da mesma chave de criptografia</li>
+</ul>
+
+<h2 id="verdict">Veredito</h2>
+<p>Escolha o <span class="next">Next.js</span> se o conteúdo precisa ir ao ar em segundos, se você quer imagens e middleware resolvidos para você e se aceita ser responsável pelas peças do OpenNext. Escolha o <span class="tan">TanStack Start</span> se você quer o menor número de peças na AWS, uma separação explícita entre servidor e cliente e portabilidade, e consegue construir os extras por conta própria.</p>
+<p class="opinion">Faça um protótipo da sua rota mais difícil nos dois antes de decidir e meça os Core Web Vitals no seu próprio app.</p>
+<h2 id="sources">Fontes</h2>
+<ul class="sources"><li><a href="https://nextjs.org/docs/app/guides/self-hosting">Next.js: Self-hosting</a></li><li><a href="https://nextjs.org/docs/app/getting-started/server-and-client-components">Next.js: Server and Client Components</a></li><li><a href="https://nextjs.org/docs/app/guides/how-revalidation-works">Next.js: How revalidation works</a></li><li><a href="https://opennext.js.org/aws">OpenNext for AWS</a></li><li><a href="https://sst.dev/docs/component/aws/nextjs">SST: Nextjs component (AWS resources, limits)</a></li><li><a href="https://tanstack.com/start/latest/docs/framework/react/guide/hosting">TanStack Start: Hosting</a></li><li><a href="https://tanstack.com/start/latest/docs/framework/react/guide/execution-model">TanStack Start: Execution model</a></li><li><a href="https://tanstack.com/start/latest/docs/framework/react/guide/server-functions">TanStack Start: Server functions</a></li><li><a href="https://tanstack.com/start/latest/docs/framework/react/guide/selective-ssr">TanStack Start: Selective SSR</a></li><li><a href="https://tanstack.com/start/latest/docs/framework/react/guide/static-prerendering">TanStack Start: Static prerendering</a></li><li><a href="https://tanstack.com/start/latest/docs/framework/react/start-vs-nextjs">TanStack: Start vs Next.js</a></li><li><a href="https://nitro.build/deploy/providers/aws">Nitro: AWS Lambda preset</a></li><li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-lambda.html">AWS: Restrict access to a Lambda function URL origin</a></li><li><a href="https://web.dev/articles/vitals">web.dev: Core Web Vitals</a></li><li><a href="https://web.dev/articles/ttfb">web.dev: TTFB</a></li><li><a href="https://www.infoq.com/news/2025/11/tanstack-start-v1">InfoQ: TanStack Start release candidate (Nov 2025)</a></li><li><a href="https://blog.logrocket.com/tanstack-start-rsc-vs-next-js-rsc-performance-dx-production-readiness/">LogRocket: TanStack Start RSC vs Next.js RSC</a></li></ul>
+</div>

@@ -4,11 +4,11 @@
 <section class="hero compact">
   <h1>{{ .Title }}</h1>
   {{ with .Content }}<div class="lead">{{ . }}</div>{{ end }}
-  {{ with ($tags | uniq) }}<ul class="chips topics" aria-label="Topics">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
+  {{ with ($tags | uniq) }}<ul class="chips topics" aria-label="{{ i18n "topics" }}">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
 </section>
 <section class="post-list">
   {{ range first 1 $pages }}{{ partial "post-card.html" (dict "p" . "featured" true) }}{{ end }}
   {{ with after 1 $pages }}<div class="post-grid">{{ range . }}{{ partial "post-card.html" (dict "p" . "featured" false) }}{{ end }}</div>{{ end }}
-  {{ if not $pages }}<p class="lead">No articles yet. Check back soon.</p>{{ end }}
+  {{ if not $pages }}<p class="lead">{{ i18n "noArticles" }}</p>{{ end }}
 </section>
 {{ end }}

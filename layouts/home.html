@@ -1,25 +1,26 @@
 {{ define "main" }}
+{{ $lang := site.Language.Lang }}
 <section class="hero">
   {{ with resources.Get "images/avatar.jpg" }}
   {{ $img := .Fill "480x480 q85" }}
-  <img class="avatar" src="{{ $img.RelPermalink }}" width="240" height="240" alt="Portrait of {{ site.Title }}">
+  <img class="avatar" src="{{ $img.RelPermalink }}" width="240" height="240" alt="{{ i18n "portraitOf" (dict "name" site.Title) }}">
   {{ end }}
   <div class="hero-text">
     <p class="eyebrow">{{ site.Params.role }} · {{ site.Params.location }}</p>
-    <h1>Hi, I'm <span class="accent">{{ site.Title }}</span>.</h1>
+    <h1>{{ i18n "greeting" }} <span class="accent">{{ site.Title }}</span>.</h1>
     <p class="lead">{{ site.Params.description }}</p>
     <p class="cta">
-      <a class="btn" href="#contact">Get in touch</a>
+      <a class="btn" href="#contact">{{ i18n "getInTouch" }}</a>
       <a class="btn ghost" href="{{ site.Params.linkedin }}">LinkedIn</a>
     </p>
   </div>
 </section>
 
-<section id="about"><h2>About</h2><div class="prose">{{ .Content }}</div></section>
+<section id="about"><h2>{{ i18n "about" }}</h2><div class="prose">{{ .Content }}</div></section>
 
-<section id="stack"><h2>Stack</h2>
+<section id="stack"><h2>{{ i18n "stack" }}</h2>
   <dl class="stack-rows">
-  {{ range hugo.Data.stack }}
+  {{ range index hugo.Data.stack $lang }}
     <div class="stack-row">
       <dt>{{ .title }}</dt>
       <dd><ul class="chips">{{ range .items }}<li>{{ . }}</li>{{ end }}</ul></dd>
@@ -28,14 +29,14 @@
   </dl>
 </section>
 
-<section id="experience"><h2>Experience</h2>
+<section id="experience"><h2>{{ i18n "experience" }}</h2>
   <ol class="timeline">
-  {{ range $i, $e := hugo.Data.experience }}
+  {{ range $i, $e := index hugo.Data.experience $lang }}
     <li>
     {{ if or $e.team $e.bullets }}
       <details class="collapsible role"{{ if eq $i 0 }} open{{ end }}>
         <summary><div>{{ partial "role-head.html" $e }}</div></summary>
-        {{ with $e.team }}<p class="team">Team: {{ . }}</p>{{ end }}
+        {{ with $e.team }}<p class="team">{{ i18n "team" }}: {{ . }}</p>{{ end }}
         {{ with $e.bullets }}<ul class="bullets">{{ range . }}<li>{{ . | markdownify }}</li>{{ end }}</ul>{{ end }}
       </details>
     {{ else }}
@@ -46,10 +47,9 @@
   </ol>
 </section>
 
-<section id="contact"><h2>Contact</h2>
+<section id="contact"><h2>{{ i18n "contact" }}</h2>
   <p><a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a> ·
   <a href="{{ site.Params.linkedin }}">LinkedIn</a> ·
   <a href="{{ site.Params.github }}">GitHub</a></p>
 </section>
 {{ end }}
-

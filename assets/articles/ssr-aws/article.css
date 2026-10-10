@@ -126,3 +126,7 @@
 .ax .stepnav button{padding:.4rem 1rem;border:1px solid var(--rule);border-radius:999px;background:none;color:var(--fg);cursor:pointer}
 .ax .stepnav button:disabled{opacity:.4;cursor:default}
 .ax .phase{font:700 .7rem system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;fill:var(--mut)}
+
+html[lang="pt-br"] .ax .opinion::before{content:"Opinião"}
+html[lang="pt-br"] .ax .opinion.inf::before{content:"Inferência"}
+html[lang="pt-br"] .ax .take::before{content:"Visão sênior"}

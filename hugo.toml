@@ -1,26 +1,48 @@
 baseURL = "https://cmarcal.github.io/cmarcal-roberto.dev/"
-locale = "en"
 title = "Roberto Marçal"
+defaultContentLanguage = "en"
 
 disableKinds = ["taxonomy", "term"]
 
 [params]
-  description = "Software engineer focused on frontend, with extensive experience building web apps with React, Vue, Node.js and AWS. Today I build AI-first: I design the skills, guardrails and spec-driven workflows that let AI agents ship reliably in a real codebase."
-  role = "Frontend Engineer"
-  location = "Brazil"
   linkedin = "https://www.linkedin.com/in/roberto-cmarcal/"
   github = "https://github.com/cmarcal"
   email = "cmarcal.roberto@gmail.com"
 
-[menus]
-  [[menus.main]]
-    name = "Articles"
-    url = "/articles/"
+[languages]
+  [languages.en]
+    label = "English"
+    locale = "en-US"
     weight = 1
-  [[menus.main]]
-    name = "Contact"
-    url = "/#contact"
+    [languages.en.params]
+      description = "Software engineer focused on frontend, with extensive experience building web apps with React, Vue, Node.js and AWS. Today I build AI-first: I design the skills, guardrails and spec-driven workflows that let AI agents ship reliably in a real codebase."
+      role = "Frontend Engineer"
+      location = "Brazil"
+    [[languages.en.menus.main]]
+      name = "Articles"
+      url = "articles/"
+      weight = 1
+    [[languages.en.menus.main]]
+      name = "Contact"
+      url = "#contact"
+      weight = 2
+
+  [languages.pt-br]
+    label = "Português (Brasil)"
+    locale = "pt-BR"
     weight = 2
+    [languages.pt-br.params]
+      description = "Sou Software Engineer, com foco em frontend e muita experiência criando aplicações web com React, Vue, Node.js e AWS. Hoje trabalho com a IA no centro do processo: crio as skills, os guardrails e os fluxos baseados em especificação que permitem aos agentes de IA entregar com segurança em um código de verdade."
+      role = "Frontend Engineer"
+      location = "Brasil"
+    [[languages.pt-br.menus.main]]
+      name = "Artigos"
+      url = "articles/"
+      weight = 1
+    [[languages.pt-br.menus.main]]
+      name = "Contato"
+      url = "#contact"
+      weight = 2
 
 [markup.goldmark.renderer]
   unsafe = true

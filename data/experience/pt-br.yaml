@@ -1,0 +1,85 @@
+- role: Senior Software Engineer
+  company: Wellhub
+  period: Abr 2025 – Atualmente
+  meta: Tempo integral, Remoto
+  team: Wellbeing Access (Validação de Elegibilidade)
+  bullets:
+    - "**Desenvolvimento com IA:** liderei a adoção do desenvolvimento com IA nos projetos de frontend e apoiei os times de backend nos fluxos deles. Montei a camada de skills (convenções e fluxos do time transformados em skills reutilizáveis para os agentes), o harness (contexto, ferramentas, permissões e guardrails) e o ciclo de desenvolvimento."
+    - "**Hefesto (agente de IA):** criei um agente que leva uma tarefa do Jira ou do GitHub Projects até um PR aberto, usando Spec-Driven Development (SDD): um plano validado por uma pessoa, um agente novo que o implementa com TDD em um git worktree isolado e um sensor que roda a aplicação (Playwright, curl) e devolve as falhas para o ciclo."
+    - "**Observabilidade:** criei dashboards e alertas no Grafana (Prometheus, Loki) e no Datadog para latência, taxa de erro, logs, Core Web Vitals (LCP, TTFB, CLS), pods do Kubernetes (memória, réplicas, uso de CPU vs. requests), event loop e heap do Node.js, saúde do Kafka e integrações de terceiros, como o reCAPTCHA."
+    - "**Cultura de dados:** levei uma cultura orientada a dados para o time, com rastreamento de eventos e analytics de produto. Liderei o time de frontend na criação de dashboards no Metabase para acompanhar experimentos A/B (Unleash, GrowthBook) e medir o impacto das funcionalidades."
+
+- role: Senior Software Engineer
+  company: UOL EdTech
+  period: Jan 2023 – Abr 2025
+  meta: Tempo integral, Remoto, Brasil
+  team: Passei Direto
+  bullets:
+    - Desenvolvi e mantive integrações com provedores de pagamento, como Apple, Google Play e Adyen.
+    - Criei restrições de acesso a páginas, como paywall, blur e limite de páginas.
+    - Participei da criação de uma solução de recompensas para usuários que compartilham materiais entre si.
+    - Entreguei melhorias de SEO.
+    - Criei testes A/B para experimentos com usuários.
+
+- role: Software Engineer
+  company: OLX Brasil
+  period: Out 2021 – Jan 2023
+  meta: Tempo integral
+  team: Zap+ Discovery
+  bullets:
+    - "No segundo semestre de 2022, passei pela seleção de um programa interno de formação para novos gestores."
+    - "Zap Imóveis & Viva Real: criei novas funcionalidades e dei manutenção na página de resultados de busca e na lista de imóveis recomendados, além de escrever testes unitários, de integração e end-to-end."
+    - Melhorei a experiência de busca com uma funcionalidade de marketplace que agrupa anúncios idênticos, facilitando a comparação de um mesmo imóvel anunciado por várias imobiliárias.
+    - Criei experimentos A/B no Google Optimize e criei e mantive eventos de tracking para acompanhar a jornada dos usuários nos portais.
+    - Criei e mantive pipelines no GitHub Actions, dei manutenção no Design System e melhorei continuamente a performance das aplicações, com base nos Web Vitals.
+    - Dei manutenção e criei novas funcionalidades no BFF (Backend for Frontend).
+    - Ajudei a dar o pontapé inicial na reconstrução do portal Viva Real com React e Clean Architecture.
+    - "Extensão do Chrome: criei uma extensão (CSS, HTML, JavaScript puro e Mocha) que ajuda outros times a encontrar eventos de tracking com mais facilidade e a trocar de experimento A/B sem precisar abrir uma janela anônima."
+
+- role: Web Developer
+  company: Stone Age
+  period: Set 2019 – Out 2021
+  meta: Tempo integral, Barra da Tijuca
+  team: Produtos
+  bullets:
+    - Implementei a arquitetura do frontend, desenhada no Miro.
+    - Criei a biblioteca de componentes no Storybook.
+    - Desenvolvi uma arquitetura de microsserviços orientada a eventos com React, .NET Core e Docker, para soluções escaláveis.
+
+- role: Web Developer (part-time)
+  company: Roads
+  period: Jul 2020 – Abr 2021
+  meta: Freelance, Brasil
+  team: Engenharia
+  bullets:
+    - Sistema de gestão baseado em organizar o trabalho com metodologias ágeis.
+    - "Principais funcionalidades: dashboard, checkout, melhorias de layout e internacionalização."
+    - Dei manutenção e desenvolvi funcionalidades no Storybook.
+
+- role: Frontend Developer
+  company: DeÔnibus | Brasil by Bus
+  period: Mar 2019 – Ago 2019
+  meta: Tempo integral, São Paulo, Brasil
+  team: Produto
+  bullets:
+    - Criei páginas estáticas para SEO e para o sitemap.
+    - Migrei um sistema legado (Webview) para um projeto em React.
+    - Participei do chapter de SEO.
+    - Deixei o blog multilíngue.
+
+- role: Frontend Developer
+  company: We Do Logos
+  period: Jan 2018 – Mar 2019
+  meta: Tempo integral, Rio de Janeiro
+  team: TI
+  bullets:
+    - Dei manutenção em um sistema legado e atualizei o sistema interno.
+    - Melhorei o SEO.
+    - Criei uma nova página de produto em AngularJS.
+    - Criei dois CRMs internos.
+    - Migrei um sistema legado para um projeto em Vue.
+
+- role: Estágio
+  company: We Do Logos
+  period: Jul 2017 – Dez 2017
+  meta: Rio de Janeiro

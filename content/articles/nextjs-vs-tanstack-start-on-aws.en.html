@@ -16,10 +16,10 @@ scripts: [articles/ssr-aws/anim.js, articles/ssr-aws/stepper.js]
   <div class="card next"><h3>Next.js via OpenNext</h3><p>Does more out of the box (ISR, image optimization, middleware), but you need more AWS pieces and a community adapter to get there.</p></div>
   <div class="card tan"><h3>TanStack Start via Nitro</h3><p>Fewer AWS pieces and clearer server/client boundaries. In return you get fewer built-in features, no official AWS target, and it was still a release candidate as of November 2025.</p></div>
 </div>
-<p class="note">Everything here links to a source. The boxes marked Opinion or Inference are my own reading, so take them with a grain of salt. I didn't find any benchmark comparing the two on AWS.</p>
+<p class="note">Everything here links to a source. The boxes marked Opinion or Inference are my own reading.</p>
 <ol class="toc" style="list-style:none"><li><a href="#flow">1. From merged PR to a page in the browser</a></li><li><a href="#adds">2. What each framework adds</a></li><li><a href="#code">3. Where your code runs</a></li><li><a href="#fresh">4. How content gets fresh</a></li><li><a href="#routes">5. Rendering strategy per route</a></li><li><a href="#cwv">6. Core Web Vitals</a></li><li><a href="#ops">7. What you own when it breaks</a></li><li><a href="#lambda">8. Going deeper: Lambda and mutations</a></li></ol>
 <h2 id="flow">1. From merged PR to a page in the browser</h2><p>Before comparing the frameworks, let's follow any SSR app from the moment a pull request is merged. Click through the steps or press Play.</p>
-<div class="stepper" data-stepper>
+<div class="stepper" data-stepper data-play="▶ Play" data-pause="❚❚ Pause">
 <svg viewBox="0 0 680 310" role="img" aria-label="Deploy-time and request-time flow: repo, CI, S3, CloudFront, Route 53, server">
   <text class="phase" x="10" y="16">Deploy time · once per merge</text>
   <text class="phase" x="10" y="150">Request time · every visit</text>

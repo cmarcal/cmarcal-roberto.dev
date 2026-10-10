@@ -27,7 +27,7 @@ document.querySelectorAll('[data-stepper]').forEach((root) => {
   const stop = () => {
     clearInterval(timer);
     timer = null;
-    play.textContent = '▶ Play';
+    play.textContent = root.dataset.play || '▶ Play';
   };
 
   btns.forEach((b, n) => b.addEventListener('click', () => { stop(); show(n); }));
@@ -36,7 +36,7 @@ document.querySelectorAll('[data-stepper]').forEach((root) => {
   play.addEventListener('click', () => {
     if (timer) return stop();
     if (i === btns.length - 1) show(0);
-    play.textContent = '❚❚ Pause';
+    play.textContent = root.dataset.pause || '❚❚ Pause';
     timer = setInterval(() => (i < btns.length - 1 ? show(i + 1) : stop()), 4500);
   });
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) play.hidden = true;

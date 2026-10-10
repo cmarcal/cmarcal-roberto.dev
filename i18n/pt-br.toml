@@ -1,0 +1,45 @@
+[greeting]
+other = "Olá, eu sou"
+
+[getInTouch]
+other = "Entre em contato"
+
+[portraitOf]
+other = "Retrato de {{ .name }}"
+
+[about]
+other = "Sobre"
+
+[stack]
+other = "Stack"
+
+[experience]
+other = "Experiência"
+
+[contact]
+other = "Contato"
+
+[team]
+other = "Equipe"
+
+[readingTime]
+one = "{{ .Count }} min de leitura"
+other = "{{ .Count }} min de leitura"
+
+[readArticle]
+other = "Ler artigo"
+
+[allArticles]
+other = "Todos os artigos"
+
+[noArticles]
+other = "Ainda não há artigos. Volte em breve."
+
+[topics]
+other = "Tópicos"
+
+[builtWith]
+other = "Feito com Hugo"
+
+[language]
+other = "Idioma"

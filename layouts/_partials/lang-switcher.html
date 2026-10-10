@@ -1,0 +1,6 @@
+{{ $cur := site.Language.Lang }}
+<div class="lang" role="group" aria-label="{{ i18n "language" }}">
+  {{ range .AllTranslations }}
+  <a class="lang-link{{ if eq .Language.Lang $cur }} current{{ end }}" href="{{ .RelPermalink }}" lang="{{ .Language.Lang }}" hreflang="{{ .Language.Lang }}" title="{{ .Language.Label }}" aria-label="{{ .Language.Label }}"{{ if eq .Language.Lang $cur }} aria-current="true"{{ end }}>{{ partial "flag.html" .Language.Lang }}</a>
+  {{ end }}
+</div>

@@ -3,11 +3,11 @@
   <header>
     <h1>{{ .Title }}</h1>
     {{ if .Date }}{{ if eq .Section "articles" }}
-    <p class="meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time> · {{ .ReadingTime }} min read
+    <p class="meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_medium" }}</time> · {{ i18n "readingTime" .ReadingTime }}
       {{ range .Params.tags }}<span class="tag">{{ . }}</span>{{ end }}</p>
     {{ end }}{{ end }}
   </header>
   <div class="prose{{ if .Params.wide }} wide{{ end }}">{{ .Content }}</div>
-  {{ if eq .Section "articles" }}<p><a href="{{ "articles/" | relURL }}">← All articles</a></p>{{ end }}
+  {{ if eq .Section "articles" }}<p><a href="{{ "articles/" | relLangURL }}">← {{ i18n "allArticles" }}</a></p>{{ end }}
 </article>
 {{ end }}

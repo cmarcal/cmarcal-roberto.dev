@@ -113,3 +113,12 @@ main{flex:1}
 .post-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
 @media (max-width:700px){.post-card,.post-card.featured{padding:16px}.post-card.featured h2{font-size:1.25rem}}
 @media (prefers-reduced-motion:reduce){.post-card,.post-cta span{transition:none}.post-card:hover,.post-card:focus-within{transform:none}.post-card:hover .post-cta span{transform:none}}
+.nav-end{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.lang{display:flex;gap:8px;margin-left:20px}
+.lang-link{display:block;line-height:0;border-radius:4px;opacity:.5;transition:opacity .25s ease,transform .25s ease,box-shadow .25s ease}
+.lang-link svg{display:block;border-radius:3px}
+.lang-link:hover,.lang-link:focus-visible{opacity:1;transform:translateY(-2px)}
+.lang-link.current{opacity:1;box-shadow:0 0 0 2px var(--accent)}
+.lang-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.lang-link{transition:none}.lang-link:hover,.lang-link:focus-visible{transform:none}}
+@media (max-width:480px){.lang{margin-left:14px}.nav nav a{margin-left:12px}}

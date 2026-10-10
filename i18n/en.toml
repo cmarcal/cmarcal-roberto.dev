@@ -1,0 +1,45 @@
+[greeting]
+other = "Hi, I'm"
+
+[getInTouch]
+other = "Get in touch"
+
+[portraitOf]
+other = "Portrait of {{ .name }}"
+
+[about]
+other = "About"
+
+[stack]
+other = "Stack"
+
+[experience]
+other = "Experience"
+
+[contact]
+other = "Contact"
+
+[team]
+other = "Team"
+
+[readingTime]
+one = "{{ .Count }} min read"
+other = "{{ .Count }} min read"
+
+[readArticle]
+other = "Read article"
+
+[allArticles]
+other = "All articles"
+
+[noArticles]
+other = "No articles yet. Check back soon."
+
+[topics]
+other = "Topics"
+
+[builtWith]
+other = "Built with Hugo"
+
+[language]
+other = "Language"
