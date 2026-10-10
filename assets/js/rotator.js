@@ -11,9 +11,9 @@
       i = (i + 1) % words.length;
       el.textContent = words[i];
       el.classList.remove('out');
-    }, 260);
+    }, 200);
   }
-  function start() { if (!timer) timer = setInterval(next, 2800); }
+  function start() { if (!timer) timer = setInterval(next, 2000); }
   function stop() { clearInterval(timer); timer = 0; }
   document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
   start();
