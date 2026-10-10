@@ -8,7 +8,8 @@
     - **Produto em escala:** resultados de busca e agrupamento de anúncios nos grandes marketplaces imobiliários Zap Imóveis e Viva Real, integrações de pagamento (Apple, Google Play, Adyen), paywalls e limite de páginas, e funcionalidades de indicação e recompensas.
 
 - title: Engenharia de software com IA
-  teaser: Skills, harness e validação para agentes atuarem em bases de código reais.
+  teaser: Skills, harness e validação para agentes em bases de código reais, além do Hefesto, um agente de tarefa a PR.
+  hefesto: true
   body: |
     Liderei a adoção da engenharia de software com IA nos projetos de frontend e apoiei os times de backend na evolução de seus próprios fluxos. O ambiente de engenharia em que os agentes operam tem três partes:
 

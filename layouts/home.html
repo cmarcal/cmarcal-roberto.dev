@@ -22,27 +22,24 @@
 <section id="areas" class="areas"><h2>{{ i18n "areas" }}</h2>
   <p class="section-intro">{{ i18n "areasIntro" }}</p>
   {{ range $i, $a := index hugo.Data.areas $lang }}
-  <details class="collapsible area"{{ if eq $i 0 }} open{{ end }}>
+  <details class="collapsible area"{{ if lt $i 2 }} open{{ end }}>
     <summary>
       <span class="area-num" aria-hidden="true">{{ printf "%02d" (add $i 1) }}</span>
       <div class="area-head"><h3>{{ $a.title }}</h3><p class="teaser">{{ $a.teaser }}</p></div>
     </summary>
     <div class="area-body prose">{{ $a.body | markdownify }}</div>
+    {{ if $a.hefesto }}{{ with index hugo.Data.hefesto $lang }}
+    <div class="area-project">
+      <p class="eyebrow">{{ i18n "inPractice" }}</p>
+      <h4>{{ .title }}</h4>
+      <p class="project-intro">{{ .intro }}</p>
+      <ol class="loop">{{ range .steps }}<li><strong>{{ .title }}</strong><span>{{ .text }}</span></li>{{ end }}</ol>
+      <p class="project-outro">{{ .outro }}</p>
+    </div>
+    {{ end }}{{ end }}
   </details>
   {{ end }}
 </section>
-
-{{ with index hugo.Data.hefesto $lang }}
-<section id="hefesto" class="project">
-  <div class="project-card">
-    <p class="eyebrow">{{ i18n "featuredProject" }}</p>
-    <h2>{{ .title }}</h2>
-    <p class="project-intro">{{ .intro }}</p>
-    <ol class="loop">{{ range .steps }}<li><strong>{{ .title }}</strong><span>{{ .text }}</span></li>{{ end }}</ol>
-    <p class="project-outro">{{ .outro }}</p>
-  </div>
-</section>
-{{ end }}
 
 <section id="stack"><h2>{{ i18n "stack" }}</h2>
   <dl class="stack-rows">

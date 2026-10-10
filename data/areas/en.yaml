@@ -8,7 +8,8 @@
     - **Product work at scale:** search results and listing grouping on the large real estate marketplaces Zap Imóveis and Viva Real, payment integrations (Apple, Google Play, Adyen), paywalls and page limits, and referral and rewards features.
 
 - title: Software engineering with AI
-  teaser: Skills, harness and validation so agents can work in real codebases.
+  teaser: Skills, harness and validation for agents in real codebases, plus Hefesto, a task-to-PR agent.
+  hefesto: true
   body: |
     I led the adoption of AI in software engineering across the frontend projects and supported backend teams in evolving their own workflows. The engineering environment the agents work in has three parts:
 
