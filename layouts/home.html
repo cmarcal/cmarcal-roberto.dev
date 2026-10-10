@@ -24,7 +24,7 @@
   {{ range index hugo.Data.stack $lang }}
     <div class="stack-row">
       <dt>{{ .title }}</dt>
-      <dd><ul class="chips">{{ range .items }}<li>{{ . }}</li>{{ end }}</ul></dd>
+      <dd><ul class="chips">{{ range $j, $it := .items }}<li style="--i:{{ $j }}">{{ $it }}</li>{{ end }}</ul></dd>
     </div>
   {{ end }}
   </dl>
