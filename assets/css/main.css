@@ -2,7 +2,7 @@
 @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#eceef2;--muted:#9aa2b1;--card:#171a21;--line:#262a33;--accent:#ff7a52}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 "Rubik",system-ui,-apple-system,"Segoe UI",sans-serif}
 a{color:var(--accent)}
 main,.nav,footer{max-width:960px;margin:0 auto;padding-left:20px;padding-right:20px}
 .nav{display:flex;justify-content:space-between;align-items:center;padding-top:20px;padding-bottom:20px;flex-wrap:wrap;gap:8px}
