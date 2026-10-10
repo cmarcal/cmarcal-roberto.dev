@@ -52,3 +52,12 @@ other = "Esta é a versão em texto de um artigo interativo. Leia no site:"
 
 [focusedOn]
 other = "Foco em"
+
+[areas]
+other = "Áreas de atuação"
+
+[areasIntro]
+other = "Onde me aprofundo. Abra uma área para ver os detalhes."
+
+[featuredProject]
+other = "Projeto em destaque"

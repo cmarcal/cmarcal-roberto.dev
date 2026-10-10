@@ -19,6 +19,31 @@
 
 <section id="about" aria-label="{{ i18n "about" }}"><div class="prose">{{ .Content }}</div></section>
 
+<section id="areas" class="areas"><h2>{{ i18n "areas" }}</h2>
+  <p class="section-intro">{{ i18n "areasIntro" }}</p>
+  {{ range $i, $a := index hugo.Data.areas $lang }}
+  <details class="collapsible area"{{ if eq $i 0 }} open{{ end }}>
+    <summary>
+      <span class="area-num" aria-hidden="true">{{ printf "%02d" (add $i 1) }}</span>
+      <div class="area-head"><h3>{{ $a.title }}</h3><p class="teaser">{{ $a.teaser }}</p></div>
+    </summary>
+    <div class="area-body prose">{{ $a.body | markdownify }}</div>
+  </details>
+  {{ end }}
+</section>
+
+{{ with index hugo.Data.hefesto $lang }}
+<section id="hefesto" class="project">
+  <div class="project-card">
+    <p class="eyebrow">{{ i18n "featuredProject" }}</p>
+    <h2>{{ .title }}</h2>
+    <p class="project-intro">{{ .intro }}</p>
+    <ol class="loop">{{ range .steps }}<li><strong>{{ .title }}</strong><span>{{ .text }}</span></li>{{ end }}</ol>
+    <p class="project-outro">{{ .outro }}</p>
+  </div>
+</section>
+{{ end }}
+
 <section id="stack"><h2>{{ i18n "stack" }}</h2>
   <dl class="stack-rows">
   {{ range index hugo.Data.stack $lang }}

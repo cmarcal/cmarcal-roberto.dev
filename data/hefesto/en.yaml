@@ -1,0 +1,14 @@
+title: Hefesto, an AI agent
+intro: "Hefesto takes a Jira or GitHub Projects task to an open pull request. The point isn't connecting an agent to a task tracker: it's structuring the flow so the AI's implementation can be verified before it reaches human review. An open PR doesn't mean the change is correct."
+steps:
+  - title: Task
+    text: A Jira or GitHub Projects task is the starting point.
+  - title: Plan
+    text: A plan written with spec-driven development and validated by a person before any code exists. It defines what "done" means as verifiable criteria.
+  - title: Implement
+    text: A fresh agent builds against the plan with TDD, in an isolated git worktree.
+  - title: Verify
+    text: A sensor runs the application (Playwright, curl) and feeds failures back to the implementation. The loop ends when the plan's criteria are met, not when the agent says it's done.
+  - title: Pull request
+    text: An open PR whose change has already been verified, ready for human review.
+outro: "The control points: a person validates the plan before any code is written, the work stays isolated, the running application judges the result, and a person reviews the PR. Agents accelerate the work, people stay accountable for it."
