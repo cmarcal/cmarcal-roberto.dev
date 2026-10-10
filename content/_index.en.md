@@ -2,7 +2,18 @@
 title: "Home"
 ---
 
-I'm a software engineer specializing in frontend, with extensive experience building web applications for B2B and B2C audiences. My core stack is React, Vue and Node.js, with AWS for web application infrastructure. At Wellhub, in the Wellbeing Access team (Eligibility Validation), AI is the center of how I build.
+I'm a frontend engineer with extensive experience building web applications for B2B and B2C audiences, from architecture and design systems to performance and testing. My core tools are React, Vue, TypeScript and Node.js, with AWS on the infrastructure side.
+
+<details class="collapsible" open>
+<summary><h3>Frontend, in depth</h3></summary>
+
+- **Frameworks and migrations:** React and Vue day to day, with a long track record in AngularJS, Backbone and jQuery. I've migrated legacy systems to React and Vue, and helped kick off the rebuild of the Viva Real portal with React and Clean Architecture.
+- **Architecture and design systems:** frontend architecture, component libraries in Storybook and design system maintenance.
+- **Performance and SEO:** continuous performance work guided by Core Web Vitals, plus SEO improvements and static pages for sitemaps.
+- **Quality:** unit, integration and end-to-end tests with Jest and Cypress, and CI/CD pipelines in GitHub Actions.
+- **Product work at scale:** search results and listing grouping on the large real estate marketplaces Zap Imóveis and Viva Real, payment integrations (Apple, Google Play, Adyen), paywalls and page limits, and referral and rewards features.
+
+</details>
 
 <details class="collapsible" open>
 <summary><h3>AI-driven development</h3></summary>
@@ -39,19 +50,5 @@ I built Grafana (Prometheus, Loki) and Datadog dashboards and alerts covering la
 <summary><h3>Data-driven culture</h3></summary>
 
 I introduced a data-driven culture through event tracking and product analytics, and led the frontend team in building Metabase dashboards to monitor A/B experiments (Unleash, GrowthBook) and measure feature impact.
-
-</details>
-
-<details class="collapsible">
-<summary><h3>Close to the product</h3></summary>
-
-I enjoy working near the product. I've built and maintained payment integrations (Apple, Google Play, Adyen), access restrictions such as paywalls and page limits, referral and rewards features, and SEO improvements. I also worked on large real estate marketplaces (Zap Imóveis and Viva Real), from search results and listing grouping to a portal rebuild with React and Clean Architecture.
-
-</details>
-
-<details class="collapsible">
-<summary><h3>Quality and performance</h3></summary>
-
-Unit, integration and end-to-end testing, CI/CD pipelines with GitHub Actions, design system maintenance, and continuous performance work guided by Core Web Vitals.
 
 </details>

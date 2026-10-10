@@ -8,15 +8,16 @@
   <div class="hero-text">
     <p class="eyebrow">{{ site.Params.role }} · {{ site.Params.location }}</p>
     <h1>{{ i18n "greeting" }} <span class="accent">{{ site.Title }}</span>.</h1>
-    <p class="lead">{{ site.Params.description }}</p>
-    <p class="cta">
-      <a class="btn" href="#contact">{{ i18n "getInTouch" }}</a>
-      <a class="btn ghost" href="{{ site.Params.linkedin }}">LinkedIn</a>
-    </p>
+    <ul class="tag-links">
+      <li><a class="tag-link" href="{{ site.Params.github }}">{{ partial "icon.html" "github" }}GitHub</a></li>
+      <li><a class="tag-link" href="{{ site.Params.linkedin }}">{{ partial "icon.html" "linkedin" }}LinkedIn</a></li>
+      <li><a class="tag-link" href="mailto:{{ site.Params.email }}">{{ partial "icon.html" "email" }}{{ i18n "email" }}</a></li>
+      {{ with site.GetPage "/articles" }}{{ with .OutputFormats.Get "rss" }}<li><a class="tag-link" href="{{ .RelPermalink }}" type="application/rss+xml">{{ partial "icon.html" "rss" }}RSS</a></li>{{ end }}{{ end }}
+    </ul>
   </div>
 </section>
 
-<section id="about"><h2>{{ i18n "about" }}</h2><div class="prose">{{ .Content }}</div></section>
+<section id="about" aria-label="{{ i18n "about" }}"><div class="prose">{{ .Content }}</div></section>
 
 <section id="stack"><h2>{{ i18n "stack" }}</h2>
   <dl class="stack-rows">

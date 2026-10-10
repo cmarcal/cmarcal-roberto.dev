@@ -1,0 +1,35 @@
+{{- $pages := cond .IsHome site.RegularPages .Pages -}}
+{{- $pages = $pages.ByDate.Reverse -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} - {{ site.Title }}{{ end }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}</description>
+    <generator>Hugo</generator>
+    <language>{{ site.Language.Locale }}</language>
+    {{- with index $pages 0 }}
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    {{- with .OutputFormats.Get "rss" }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType.Type | safeHTML }}{{ end }}
+    {{- range $pages }}
+    {{- /* Feed readers can't run the interactive widgets, so turn them into plain text */ -}}
+    {{- $c := .Content -}}
+    {{- $c = replaceRE `(?s)<svg[^>]*aria-label="([^"]*)".*?</svg>` `<p><em>${1}</em></p>` $c -}}
+    {{- $c = replaceRE `(?s)<li><button data-title="([^"]*)"[^>]*><template>(.*?)</template>[^<]*</button></li>` `<h4>${1}</h4>${2}` $c -}}
+    {{- $c = replace $c `<div class="stepbody" aria-live="polite"><h3></h3><div></div></div>` "" -}}
+    {{- $c = replaceRE `(?s)<div class="stepnav">.*?</div>` "" $c -}}
+    {{- $c = replaceRE `(?s)<div class="seg"[^>]*>.*?</div>` "" $c -}}
+    {{- $c = replaceRE `<div class="panel[^"]*" data-for="[^"]*" data-show="n">` `<div><h4>Next.js</h4>` $c -}}
+    {{- $c = replaceRE `<div class="panel[^"]*" data-for="[^"]*" data-show="t">` `<div><h4>TanStack Start</h4>` $c }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      <guid>{{ .Permalink }}</guid>
+      <description>{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify }}{{ end }}</description>
+      <content:encoded>{{ printf "<p>%s <a href=\"%s\">%s</a></p>%s" (i18n "feedInteractive") .Permalink .Permalink (string $c) | html }}</content:encoded>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

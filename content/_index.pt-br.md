@@ -2,7 +2,18 @@
 title: "Início"
 ---
 
-Sou Software Engineer, com foco em frontend e muita experiência criando aplicações web para públicos B2B e B2C. Minhas principais tecnologias são React, Vue e Node.js, com a AWS na infraestrutura. Na Wellhub, no time de Wellbeing Access (Validação de Elegibilidade), a IA está no centro de como eu desenvolvo.
+Sou Frontend Engineer e tenho muita experiência criando aplicações web para públicos B2B e B2C, da arquitetura e dos design systems à performance e aos testes. Minhas principais tecnologias são React, Vue, TypeScript e Node.js, com a AWS na infraestrutura.
+
+<details class="collapsible" open>
+<summary><h3>Frontend a fundo</h3></summary>
+
+- **Frameworks e migrações:** React e Vue no dia a dia, com bastante bagagem em AngularJS, Backbone e jQuery. Migrei sistemas legados para React e Vue e ajudei a dar o pontapé inicial na reconstrução do portal Viva Real com React e Clean Architecture.
+- **Arquitetura e design systems:** arquitetura de frontend, bibliotecas de componentes no Storybook e manutenção de design system.
+- **Performance e SEO:** trabalho contínuo de performance guiado pelos Core Web Vitals, além de melhorias de SEO e páginas estáticas para o sitemap.
+- **Qualidade:** testes unitários, de integração e end-to-end com Jest e Cypress, e pipelines de CI/CD no GitHub Actions.
+- **Produto em escala:** resultados de busca e agrupamento de anúncios nos grandes marketplaces imobiliários Zap Imóveis e Viva Real, integrações de pagamento (Apple, Google Play, Adyen), paywalls e limite de páginas, e funcionalidades de indicação e recompensas.
+
+</details>
 
 <details class="collapsible" open>
 <summary><h3>Desenvolvimento com IA</h3></summary>
@@ -39,19 +50,5 @@ Criei dashboards e alertas no Grafana (Prometheus, Loki) e no Datadog para acomp
 <summary><h3>Cultura de dados</h3></summary>
 
 Levei uma cultura orientada a dados para o time, com rastreamento de eventos e analytics de produto, e liderei o time de frontend na criação de dashboards no Metabase para acompanhar experimentos A/B (Unleash, GrowthBook) e medir o impacto das funcionalidades.
-
-</details>
-
-<details class="collapsible">
-<summary><h3>Perto do produto</h3></summary>
-
-Gosto de trabalhar perto do produto. Criei e mantive integrações de pagamento (Apple, Google Play, Adyen), restrições de acesso, como paywalls e limite de páginas, funcionalidades de indicação e recompensas e melhorias de SEO. Também trabalhei nos grandes marketplaces imobiliários Zap Imóveis e Viva Real, da busca e do agrupamento de anúncios até a reconstrução de um portal com React e Clean Architecture.
-
-</details>
-
-<details class="collapsible">
-<summary><h3>Qualidade e performance</h3></summary>
-
-Testes unitários, de integração e end-to-end, pipelines de CI/CD com GitHub Actions, manutenção de design system e um trabalho contínuo de performance, guiado pelos Core Web Vitals.
 
 </details>

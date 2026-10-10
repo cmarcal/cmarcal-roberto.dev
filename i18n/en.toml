@@ -43,3 +43,9 @@ other = "Built with Hugo"
 
 [language]
 other = "Language"
+
+[email]
+other = "Email"
+
+[feedInteractive]
+other = "This is the text version of an interactive article. Read it on the site:"
