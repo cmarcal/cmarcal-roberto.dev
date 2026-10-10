@@ -18,13 +18,13 @@ Tenho liderado a adoção de IA no desenvolvimento de software, indo além do us
 </details>
 
 <details class="collapsible" open>
-<summary><h3>Desenvolvimento com IA</h3></summary>
+<summary><h3>Engenharia de software com IA</h3></summary>
 
-Liderei essa transição nos projetos de frontend e apoiei os times de backend nos fluxos deles. O sistema ao redor dos agentes tem três partes:
+Liderei a adoção da engenharia de software com IA nos projetos de frontend e apoiei os times de backend na evolução de seus próprios fluxos. O ambiente de engenharia em que os agentes operam tem três partes:
 
-- **Camada de skills:** as convenções e os fluxos do time escritos como skills reutilizáveis, para que cada agente trabalhe do jeito que o time trabalha.
-- **Harness:** o contexto, as ferramentas, as permissões e os guardrails que mantêm o que os agentes produzem dentro da arquitetura e dos padrões do projeto.
-- **Ciclo de desenvolvimento:** spec-driven development (SDD) e TDD definem o que significa "pronto", a validação é feita rodando a aplicação e toda mudança passa por revisão humana.
+- **Skills e convenções:** transformo padrões, práticas e fluxos de trabalho do time em skills reutilizáveis, dando aos agentes instruções consistentes sobre como desenvolver dentro do projeto.
+- **Harness de engenharia:** estruturo o contexto, as ferramentas, as permissões e os guardrails que delimitam a atuação dos agentes e integram seu trabalho à arquitetura e aos padrões existentes.
+- **Desenvolvimento e validação:** combino spec-driven development (SDD) e TDD para orientar a implementação e definir critérios verificáveis de conclusão. A validação inclui a execução da aplicação, e toda mudança passa por revisão humana.
 
 </details>
 

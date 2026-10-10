@@ -18,13 +18,13 @@ I've been leading the adoption of AI in software development, going beyond using
 </details>
 
 <details class="collapsible" open>
-<summary><h3>AI-driven development</h3></summary>
+<summary><h3>Software engineering with AI</h3></summary>
 
-I led this shift across the frontend projects and supported backend teams on their own AI workflows. The system around the agents has three parts:
+I led the adoption of AI in software engineering across the frontend projects and supported backend teams in evolving their own workflows. The engineering environment the agents work in has three parts:
 
-- **Skills layer:** team conventions and workflows written as reusable agent skills, so every agent works the way the team works.
-- **Harness:** the context, tools, permissions and guardrails that keep agent output inside the boundaries of the architecture and the standards.
-- **Development loop:** spec-driven development (SDD) and TDD define what "done" means, validation happens by running the application, and every change gets human review.
+- **Skills and conventions:** I turn the team's standards, practices and workflows into reusable skills, giving agents consistent instructions on how to develop within the project.
+- **Engineering harness:** I structure the context, tools, permissions and guardrails that bound what agents can do and tie their work into the existing architecture and standards.
+- **Development and validation:** I combine spec-driven development (SDD) and TDD to guide implementation and define verifiable completion criteria. Validation includes running the application, and every change gets human review.
 
 </details>
 
