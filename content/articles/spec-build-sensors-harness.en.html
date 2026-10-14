@@ -17,7 +17,7 @@ scripts: [articles/ssr-aws/anim.js, articles/ssr-aws/stepper.js, articles/harnes
   <div class="card bd"><span class="num">Stage 2</span><h3>Build</h3><p>Isolated branch, written conventions, tests with the code.</p></div>
   <div class="card se"><span class="num">Stage 3</span><h3>Sensors</h3><p>Automated checks that read green or red. Red means fix and rerun.</p></div>
 </div>
-<ol class="toc" style="list-style:none"><li><a href="#intro">1. Introduction</a></li><li><a href="#harness">What is a harness</a></li><li><a href="#stages">The three stages</a></li><li><a href="#dev">2. Development</a></li><li><a href="#repo">The monorepo</a></li><li><a href="#spec">Spec</a></li><li><a href="#build">Build</a></li><li><a href="#sensors">Sensors</a></li><li><a href="#others">Other harnesses</a></li><li><a href="#conclusion">3. Conclusion</a></li><li><a href="#sources">Sources</a></li></ol>
+<ol class="toc" style="list-style:none"><li><a href="#intro">1. Introduction</a></li><li><a href="#harness">What is a harness</a></li><li><a href="#stages">The three stages</a></li><li><a href="#dev">2. Development</a></li><li><a href="#repo">The monorepo</a></li><li><a href="#spec">Spec</a></li><li><a href="#build">Build</a></li><li><a href="#sensors">Sensors</a></li><li><a href="#others">Other harnesses</a></li><li><a href="#conclusion">3. Conclusion</a></li><li><a href="#references">References</a></li></ol>
 
 <h2 id="intro">1. Introduction</h2>
 <h3 id="real-life">AI in real life</h3>
@@ -219,7 +219,7 @@ export const SENSORS = ['lint', 'typecheck', 'format:check', 'knip', 'skills:lin
 // verify passed: all sensors green.</code></pre>
 <p>Try it yourself. The agent changed a file and forgot the test, so the first run fails. Write the missing test and run it again, or try skipping the test and see what happens.</p>
 <div class="verify" data-verify data-failed="verify failed: {sensor} red. Fix the cause, then rerun npm run verify." data-passed="verify passed: all sensors green." data-cheat="Not allowed. Skipping or deleting a test makes the sensor pass without fixing anything, and the pr-gate skill doesn't accept that. Write the test.">
-  <div class="bar"><button class="run">▶ Run npm run verify</button><button class="fix" disabled>Write the missing test, rerun</button><button class="cheat" disabled>Skip the test instead</button></div>
+  <div class="bar"><button class="run">▶ Run npm run verify</button><button class="fix" disabled>Write the missing test, rerun</button><button class="cheat" disabled>Skip the test instead</button><button class="reset">Reset</button></div>
   <ol class="vlist" aria-label="Sensors">
     <li data-name="lint"><span class="st"></span>lint</li>
     <li data-name="typecheck"><span class="st"></span>typecheck</li>
@@ -269,7 +269,7 @@ export const SENSORS = ['lint', 'typecheck', 'format:check', 'knip', 'skills:lin
 </ol>
 <p class="take">The harness is never finished. Each time the agent surprises you, ask which guide would have prevented it or which sensor would have caught it, and add that one. Over time you review less code and more intent.</p>
 
-<h2 id="sources">Sources</h2>
+<h2 id="references">References</h2>
 <ul class="sources">
 <li><a href="https://martinfowler.com/articles/harness-engineering.html">Birgitta Böckeler: Harness engineering for coding agent users (martinfowler.com)</a></li>
 <li><a href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering, leveraging Codex in an agent-first world</a></li>

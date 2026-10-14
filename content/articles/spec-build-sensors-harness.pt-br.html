@@ -17,7 +17,7 @@ scripts: [articles/ssr-aws/anim.js, articles/ssr-aws/stepper.js, articles/harnes
   <div class="card bd"><span class="num">Etapa 2</span><h3>Build</h3><p>Branch isolada, regras escritas, testes junto com o código.</p></div>
   <div class="card se"><span class="num">Etapa 3</span><h3>Sensors</h3><p>Checagens automáticas que passam ou falham. Falhou, corrige e roda de novo.</p></div>
 </div>
-<ol class="toc" style="list-style:none"><li><a href="#intro">1. Introdução</a></li><li><a href="#harness">O que é um harness</a></li><li><a href="#stages">As três etapas</a></li><li><a href="#dev">2. Desenvolvimento</a></li><li><a href="#repo">O monorepo</a></li><li><a href="#spec">Spec</a></li><li><a href="#build">Build</a></li><li><a href="#sensors">Sensors</a></li><li><a href="#others">Outros harnesses</a></li><li><a href="#conclusion">3. Conclusão</a></li><li><a href="#sources">Fontes</a></li></ol>
+<ol class="toc" style="list-style:none"><li><a href="#intro">1. Introdução</a></li><li><a href="#harness">O que é um harness</a></li><li><a href="#stages">As três etapas</a></li><li><a href="#dev">2. Desenvolvimento</a></li><li><a href="#repo">O monorepo</a></li><li><a href="#spec">Spec</a></li><li><a href="#build">Build</a></li><li><a href="#sensors">Sensors</a></li><li><a href="#others">Outros harnesses</a></li><li><a href="#conclusion">3. Conclusão</a></li><li><a href="#references">Referências</a></li></ol>
 
 <h2 id="intro">1. Introdução</h2>
 <h3 id="real-life">IA na vida real</h3>
@@ -219,7 +219,7 @@ export const SENSORS = ['lint', 'typecheck', 'format:check', 'knip', 'skills:lin
 // verify passed: all sensors green.</code></pre>
 <p>Teste você mesmo. O agente mudou um arquivo e esqueceu o teste, então a primeira rodada vai falhar. Escreva o teste que falta e rode de novo, ou tente pular o teste e veja o que acontece.</p>
 <div class="verify" data-verify data-failed="verify failed: {sensor} red. Fix the cause, then rerun npm run verify." data-passed="verify passed: all sensors green." data-cheat="Não vale. Pular ou apagar o teste faz o sensor passar sem resolver nada, e a skill pr-gate não aceita isso. Escreva o teste.">
-  <div class="bar"><button class="run">▶ Rodar npm run verify</button><button class="fix" disabled>Escrever o teste que falta e rodar de novo</button><button class="cheat" disabled>Pular o teste</button></div>
+  <div class="bar"><button class="run">▶ Rodar npm run verify</button><button class="fix" disabled>Escrever o teste que falta e rodar de novo</button><button class="cheat" disabled>Pular o teste</button><button class="reset">Reiniciar</button></div>
   <ol class="vlist" aria-label="Sensors">
     <li data-name="lint"><span class="st"></span>lint</li>
     <li data-name="typecheck"><span class="st"></span>typecheck</li>
@@ -269,7 +269,7 @@ export const SENSORS = ['lint', 'typecheck', 'format:check', 'knip', 'skills:lin
 </ol>
 <p class="take">O harness nunca fica pronto. Sempre que o agente fizer algo inesperado, pergunte qual guide teria evitado ou qual sensor teria pegado, e adicione esse. Com o tempo, você revisa menos código e mais ideia.</p>
 
-<h2 id="sources">Fontes</h2>
+<h2 id="references">Referências</h2>
 <ul class="sources">
 <li><a href="https://martinfowler.com/articles/harness-engineering.html">Birgitta Böckeler: Harness engineering for coding agent users (martinfowler.com)</a></li>
 <li><a href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering, leveraging Codex in an agent-first world</a></li>
