@@ -7,7 +7,7 @@
       {{ range .Params.tags }}<span class="tag">{{ . }}</span>{{ end }}</p>
     {{ end }}{{ end }}
   </header>
-  <div class="prose{{ if .Params.wide }} wide{{ end }}">{{ .Content }}</div>
+  <div class="prose{{ if .Params.wide }} wide{{ end }}">{{ .Content | replaceRE `<a href="(https?://[^"]+)"` `<a target="_blank" rel="noopener noreferrer" href="$1"` | safeHTML }}</div>
   {{ if eq .Section "articles" }}<p><a href="{{ "articles/" | relLangURL }}">← {{ i18n "allArticles" }}</a></p>{{ end }}
 </article>
 {{ end }}

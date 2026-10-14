@@ -55,6 +55,14 @@ document.querySelectorAll('[data-verify]').forEach((root) => {
     busy = false;
   };
 
+  const again = root.querySelector('.reset');
+  again.addEventListener('click', () => {
+    if (busy) return;
+    fixed = false;
+    fix.disabled = cheat.disabled = true;
+    reset();
+  });
+
   run.addEventListener('click', go);
   fix.addEventListener('click', () => {
     fixed = true;
