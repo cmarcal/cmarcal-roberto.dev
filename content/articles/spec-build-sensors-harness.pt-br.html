@@ -1,0 +1,283 @@
+---
+title: "Spec, Build, Sensors: um harness para código escrito por IA"
+date: 2026-10-13
+description: "Como organizo um monorepo TypeScript para que agentes de IA entreguem mudanças previsíveis: spec primeiro, build isolado e sensors decidindo o que entra."
+tags: [IA, Harness, Monorepo, Turborepo]
+wide: true
+styles: [articles/ssr-aws/article.css, articles/harness/harness.css]
+scripts: [articles/ssr-aws/anim.js, articles/ssr-aws/stepper.js, articles/harness/harness.js]
+---
+<div class="ax">
+<p class="meta">Turborepo, React, Fastify e um pacote shared, com um agente fazendo boa parte da digitação</p>
+<p class="sub">Como organizo um monorepo TypeScript para que agentes de IA entreguem mudanças previsíveis, fáceis de revisar e prontas para o merge.</p>
+<p class="lead">Um agente escreve uma feature em minutos. O difícil é confiar no que ele devolve. Parei de tentar resolver isso lendo cada diff com mais atenção e passei a organizar o projeto em três etapas: o <b class="sp">Spec</b> decide o que construir, o <b class="bd">Build</b> produz em isolamento e os <b class="se">Sensors</b> provam que dá para fazer o merge. Neste artigo mostro essa estrutura num projeto pessoal pequeno, o FutMeet. Ele ainda está em construção e não foi lançado, então o repositório continua mudando enquanto escrevo isto.</p>
+
+<div class="stages">
+  <div class="card sp"><span class="num">Etapa 1</span><h3>Spec</h3><p>Explorar a ideia, escrever, planejar. Ainda sem código.</p></div>
+  <div class="card bd"><span class="num">Etapa 2</span><h3>Build</h3><p>Branch isolada, regras escritas, testes junto com o código.</p></div>
+  <div class="card se"><span class="num">Etapa 3</span><h3>Sensors</h3><p>Checagens automáticas que passam ou falham. Falhou, corrige e roda de novo.</p></div>
+</div>
+<ol class="toc" style="list-style:none"><li><a href="#intro">1. Introdução</a></li><li><a href="#harness">O que é um harness</a></li><li><a href="#stages">As três etapas</a></li><li><a href="#dev">2. Desenvolvimento</a></li><li><a href="#repo">O monorepo</a></li><li><a href="#spec">Spec</a></li><li><a href="#build">Build</a></li><li><a href="#sensors">Sensors</a></li><li><a href="#others">Outros harnesses</a></li><li><a href="#conclusion">3. Conclusão</a></li><li><a href="#sources">Fontes</a></li></ol>
+
+<h2 id="intro">1. Introdução</h2>
+<h3 id="real-life">IA na vida real</h3>
+<p>No meu dia a dia, um agente de IA já escreve boa parte do código. No FutMeet, o <a href="https://github.com/cmarcal/futmeet#how-ai-works-on-this-project">README diz exatamente isso</a>: agentes escrevem a maioria das mudanças. Não é papo de futuro, é como uso esse repositório hoje.</p>
+<p>A velocidade é real, mas o problema não é ela. O agente esquece uma regra que você explicou ontem. Instala uma dependência que ninguém pediu. Diz que terminou com um teste quebrando. Desenvolvedores também fazem isso, só que o agente erra mais rápido e não cansa.</p>
+<p class="opinion">Ler cada diff com mais cuidado não escala, e você vira o gargalo. Prefiro gastar esse esforço uma vez, na estrutura do projeto.</p>
+
+<h3 id="harness">O que é um harness</h3>
+<p>O termo vem do mundo dos agentes. Birgitta Böckeler, no martinfowler.com, define como <q>tudo num agente de IA, exceto o modelo em si</q> (no original: <i>everything in an AI agent except the model itself</i>), e foca na parte que você monta para o seu projeto: o <i>outer harness</i> (<a href="https://martinfowler.com/articles/harness-engineering.html">Harness engineering for coding agent users</a>, abril de 2026). A OpenAI usou a mesma palavra <a href="https://openai.com/index/harness-engineering/">no relato de como construiu um produto com o Codex</a>.</p>
+<p>Böckeler divide o harness em dois tipos de controle:</p>
+<div class="tldr">
+  <div class="card sp"><h3>Guides (feedforward)</h3><p>Conduzem o agente <i>antes</i> de ele agir, para a primeira tentativa ter mais chance de acertar. Exemplos: regras no estilo <code>AGENTS.md</code>, skills, code mods.</p></div>
+  <div class="card se"><h3>Sensors (feedback)</h3><p>Observam <i>depois</i> que o agente agiu e deixam ele se autocorrigir. Exemplos: testes, linters, type checkers, um reviewer de IA.</p></div>
+</div>
+<p>Ela também separa controles <b>computacionais</b> (determinísticos e rápidos, como um type checker) dos <b>inferenciais</b> (julgamento semântico, como um code review de IA, mais lento e menos previsível). E o seu trabalho passa a ser ajustar o harness: se o mesmo erro aparece duas vezes, você melhora um guide ou um sensor, em vez de supervisionar mais de perto.</p>
+
+<h3 id="stages">As três etapas</h3>
+<p>As minhas três etapas não são termos da Böckeler. É só o jeito que encontrei de organizar a mesma ideia dentro do repositório:</p>
+<ul>
+  <li><b class="sp">Spec</b> é um guide. O agente esclarece a intenção, compara abordagens e escreve spec e plano antes de encostar no código.</li>
+  <li><b class="bd">Build</b> também é um guide. O trabalho acontece num worktree isolado, e regras escritas (skills) dizem ao agente como este projeto faz as coisas.</li>
+  <li><b class="se">Sensors</b> são o feedback. Checagens automáticas decidem se o resultado pode virar pull request.</li>
+</ul>
+<p class="opinion inf">Dividir os guides em Spec e Build é escolha minha. Ajuda porque acontecem em momentos diferentes e falham de jeitos diferentes: uma spec ruim constrói a coisa errada do jeito certo, um build ruim implementa a coisa certa do jeito errado.</p>
+<p>Este é o ciclo inteiro. Clique pelos passos ou aperte Play.</p>
+
+<div class="stepper" data-stepper data-play="▶ Play" data-pause="❚❚ Pausar">
+<svg viewBox="0 0 730 230" role="img" aria-label="Fluxo da ideia à spec, ao worktree, ao código com testes, ao verify e ao pull request, com um laço de falha do verify de volta ao código">
+  <text class="phase sp" x="10" y="26">1 · Spec</text>
+  <text class="phase bd" x="260" y="26">2 · Build</text>
+  <text class="phase se" x="510" y="26">3 · Sensors</text>
+
+  <path class="edge" data-e="e1" d="M96 100H135"/>
+  <path class="edge" data-e="e2" d="M221 100H260"/>
+  <path class="edge" data-e="e3" d="M346 100H385"/>
+  <path class="edge" data-e="e4" d="M471 100H510"/>
+  <path class="edge" data-e="e5" d="M596 100H635"/>
+  <path class="edge red" data-e="e-red" d="M553 128V182H428V128"/>
+
+  <g class="node sp" data-n="idea"><rect class="b" x="10" y="72" width="86" height="56" rx="4"/><text x="53" y="97" text-anchor="middle">Ideia</text><text x="53" y="113" text-anchor="middle" opacity=".6">você + agente</text></g>
+  <g class="node sp" data-n="spec"><rect class="b" x="135" y="72" width="86" height="56" rx="4"/><text x="178" y="97" text-anchor="middle">Spec</text><text x="178" y="113" text-anchor="middle" opacity=".6">+ plano</text></g>
+  <g class="node bd" data-n="tree"><rect class="b" x="260" y="72" width="86" height="56" rx="4"/><text x="303" y="97" text-anchor="middle">Worktree</text><text x="303" y="113" text-anchor="middle" opacity=".6">sua branch</text></g>
+  <g class="node bd" data-n="code"><rect class="b" x="385" y="72" width="86" height="56" rx="4"/><text x="428" y="97" text-anchor="middle">Código</text><text x="428" y="113" text-anchor="middle" opacity=".6">+ testes</text></g>
+  <g class="node se" data-n="verify"><rect class="b" x="510" y="72" width="86" height="56" rx="4"/><text x="553" y="97" text-anchor="middle">verify</text><text x="553" y="113" text-anchor="middle" opacity=".6">sensors</text></g>
+  <g class="node se" data-n="pr"><rect class="b" x="635" y="72" width="86" height="56" rx="4"/><text x="678" y="97" text-anchor="middle">Pull request</text><text x="678" y="113" text-anchor="middle" opacity=".6">só se passar</text></g>
+  <text class="phase" x="490" y="204" text-anchor="middle">falhou: corrige a causa, roda de novo</text>
+</svg>
+
+<ol class="steps">
+<li><button data-title="Comece por uma ideia, não por código" data-nodes="idea"><template><p>O agente primeiro pergunta o que você quer de verdade e compara abordagens. Não sai digitando. É o hábito em torno do qual as skills do <a href="https://github.com/obra/superpowers">Superpowers</a> foram feitas.</p></template>1 Ideia</button></li>
+<li><button data-title="Escreva a spec e o plano" data-nodes="idea spec" data-edges="e1"><template><p>O resultado é uma spec e um plano enxutos, com o objetivo principal e os passos, escritos no ticket: uma issue do GitHub, um card do Jira ou qualquer outra ferramenta de gestão. Uma decisão difícil de reverter também ganha um ADR, esse no repositório. A intenção fica num lugar onde o time lê e comenta, e não numa conversa que some amanhã.</p></template>2 Spec</button></li>
+<li><button data-title="Abra um worktree isolado" data-nodes="spec tree" data-edges="e2"><template><p>Toda mudança ganha seu próprio git worktree numa branch própria. Um git hook recusa commits na <code>main</code> e no checkout principal, então a regra vale mesmo quando ninguém está olhando.</p></template>3 Worktree</button></li>
+<li><button data-title="Código e testes, juntos" data-nodes="tree code" data-edges="e3"><template><p>O agente carrega só a skill que combina com a tarefa e escreve o código. Os testes vão no mesmo commit dos arquivos que cobrem.</p></template>4 Código</button></li>
+<li><button data-title="Rode todos os sensors" data-nodes="code verify" data-edges="e4"><template><p><code>npm run verify</code> roda lint, tipos, formatação, código não usado, skills, presença de testes, secrets, audit, testes, build e tamanho do bundle. No CI, também as migrations.</p></template>5 verify</button></li>
+<li><button data-title="Falhou? Corrige, não pula" data-nodes="verify code" data-edges="e-red"><template><p>Quando um sensor falha, o agente corrige o que causou o erro e roda tudo de novo. Pular teste, baixar limite ou silenciar regra não vale.</p></template>6 Falhou</button></li>
+<li><button data-title="Passou tudo, abre o pull request" data-nodes="verify pr" data-edges="e5"><template><p>Só com todos os sensors passando o agente pode abrir o pull request. Um hook do Claude Code bloqueia o comando caso contrário, e o CI roda os mesmos sensors como segunda barreira.</p></template>7 Passou</button></li>
+</ol>
+<div class="stepbody" aria-live="polite"><h3></h3><div></div></div>
+<div class="stepnav"><button class="back">← Voltar</button><button class="next-step">Próximo →</button><button class="play">▶ Play</button></div>
+</div>
+
+<h3 id="why">Por que estruturar assim</h3>
+<ul>
+  <li><b>As regras moram no repositório.</b> Uma nova sessão do agente, uma pessoa nova no time ou outra ferramenta leem os mesmos arquivos. Nada depende de alguém lembrar de repetir.</li>
+  <li><b>Errar cedo sai barato.</b> Uma spec errada custa um parágrafo. Uma branch errada custa um worktree que você apaga. Um sensor falhando custa uma nova rodada. Um bug em produção custa muito mais.</li>
+  <li><b>O review encolhe.</b> Quando o pull request existe, as perguntas mecânicas já foram respondidas. Aí você revisa a ideia e o design, que é o que só você consegue julgar.</li>
+</ul>
+
+<h2 id="dev">2. Desenvolvimento</h2>
+<h3 id="repo">O monorepo</h3>
+<p>O <a href="https://github.com/cmarcal/futmeet">FutMeet</a> ajuda quem joga bola casualmente a organizar o futebol: alguém abre uma sala e compartilha o link, o pessoal entra, e o app sorteia times equilibrados. É um monorepo TypeScript em npm workspaces, orquestrado pelo <a href="https://turborepo.com/">Turborepo</a>:</p>
+<ul>
+  <li><code>apps/web</code>: React 19 e Vite, uma single-page app.</li>
+  <li><code>apps/api</code>: o BFF, uma API REST em <a href="https://fastify.dev/">Fastify</a> 5 com PostgreSQL.</li>
+  <li><code>packages/shared</code>: tipos de domínio e utils que os dois apps importam.</li>
+  <li><code>packages/sensors</code>: o código por trás do <code>npm run verify</code>.</li>
+  <li><code>packages/tsconfig</code> e <code>packages/oxlint-config</code>: uma configuração de TypeScript e uma de lint para todo mundo.</li>
+</ul>
+<p>O Turbo define a ordem das tasks: o shared builda primeiro e os apps depois.</p>
+<pre><code>// turbo.json
+{
+  "tasks": {
+    "build":     { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "typecheck": { "dependsOn": ["^build"] },
+    "dev":       { "cache": false, "persistent": true },
+    "lint": {},
+    "test": {}
+  }
+}</code></pre>
+<p><code>^build</code> quer dizer "builde minhas dependências antes" (<a href="https://turborepo.com/docs/crafting-your-repository/configuring-tasks">docs do Turborepo</a>). Como o <code>@futmeet/shared</code> exporta os arquivos compilados de <code>dist/</code>, o <code>typecheck</code> do web e da API usa o shared já compilado.</p>
+
+<svg viewBox="0 0 680 200" role="img" aria-label="Grafo de tasks: packages/shared builda primeiro, depois apps/api e apps/web">
+  <path class="edge hot" d="M250 100H340L420 52"/>
+  <path class="edge hot" d="M250 100H340L420 148"/>
+  <text class="phase" x="330" y="86" text-anchor="middle">^build</text>
+  <g class="node"><rect class="b" x="60" y="72" width="190" height="56" rx="4"/><text x="155" y="97" text-anchor="middle">packages/shared</text><text x="155" y="113" text-anchor="middle" opacity=".6">tipos + utils, builda primeiro</text></g>
+  <g class="node"><rect class="b" x="420" y="24" width="190" height="56" rx="4"/><text x="515" y="49" text-anchor="middle">apps/api</text><text x="515" y="65" text-anchor="middle" opacity=".6">BFF em Fastify</text></g>
+  <g class="node"><rect class="b" x="420" y="120" width="190" height="56" rx="4"/><text x="515" y="145" text-anchor="middle">apps/web</text><text x="515" y="161" text-anchor="middle" opacity=".6">React + Vite</text></g>
+</svg>
+
+<p>O pacote shared é o contrato entre front e back. Uma única definição, importada por alias e nunca por caminho relativo entre pacotes:</p>
+<pre><code>// packages/shared/src/types/index.ts
+// 'sorting' is frontend-only transient state; backend only stores 'setup' | 'complete'
+export type GameStatus = 'setup' | 'sorting' | 'complete';
+export type ServerGameStatus = 'setup' | 'complete';
+
+// apps/web e apps/api
+import type { Game } from '@futmeet/shared/types';</code></pre>
+<p class="opinion inf">Se a API muda o formato de um <code>Game</code>, o typecheck do web deve falhar na mesma rodada. Não medi quantas vezes isso me salva. O que sei é que parei de ver esse tipo de erro no review.</p>
+
+<p>Escolha uma etapa para ver quais arquivos do repositório pertencem a ela:</p>
+<div class="seg" data-toggle="stage" role="group" aria-label="Etapa">
+  <button class="all" data-value="all" aria-pressed="true">Tudo</button>
+  <button class="sp" data-value="spec" aria-pressed="false">Spec</button>
+  <button class="bd" data-value="build" aria-pressed="false">Build</button>
+  <button class="se" data-value="sensors" aria-pressed="false">Sensors</button>
+</div>
+<ul class="tree">
+  <li data-for="stage" data-show="all spec build"><b>CLAUDE.md</b><span>Workflow obrigatório, índice de skills e regras do projeto</span></li>
+  <li data-for="stage" data-show="all spec"><b>Issue ou ticket</b><span>Spec e plano de cada mudança. Fora do repositório</span></li>
+  <li data-for="stage" data-show="all spec"><b>adr/</b><span>Decisões difíceis de reverter</span></li>
+  <li data-for="stage" data-show="all build"><b>.claude/skills/</b><span>Uma pasta por skill, detalhes em <code>references/</code></span></li>
+  <li data-for="stage" data-show="all build"><b>.githooks/</b><span>Sem commit na <code>main</code> nem no checkout principal</span></li>
+  <li data-for="stage" data-show="all build"><b>apps/web, apps/api</b><span>O código que o agente muda</span></li>
+  <li data-for="stage" data-show="all build"><b>packages/shared</b><span>Contrato entre front e back</span></li>
+  <li data-for="stage" data-show="all build sensors"><b>packages/tsconfig, oxlint-config</b><span>Uma configuração, aplicada em tudo</span></li>
+  <li data-for="stage" data-show="all build sensors"><b>turbo.json</b><span>Ordem das tasks e cache</span></li>
+  <li data-for="stage" data-show="all sensors"><b>packages/sensors/</b><span>verify, lint de skills, presença de testes, budget do bundle</span></li>
+  <li data-for="stage" data-show="all sensors"><b>.claude/settings.json</b><span>Hook que bloqueia o <code>gh pr create</code> se algum sensor falhar</span></li>
+  <li data-for="stage" data-show="all sensors"><b>.github/workflows/ci.yml</b><span>Os mesmos sensors, como segunda barreira</span></li>
+</ul>
+
+<h3 id="spec"><span class="sp">Spec</span>: decida antes de digitar</h3>
+<p>A primeira etapa tem uma regra: nada de código antes de a ideia estar escrita. Primeiro o agente pergunta o que você quer e compara as opções. Disso saem uma spec e um plano enxutos, com o objetivo principal e os passos, que ficam no ticket: uma issue do GitHub, um card do Jira ou qualquer outra ferramenta de gestão. Se a decisão for difícil de reverter, vira também um ADR, e esse fica no repositório.</p>
+<p>Um exemplo do FutMeet, resumido. A spec para adicionar Docker à API começa com o objetivo e os arquivos que vai tocar:</p>
+<pre><code># Docker Configuration Design: FutMeet API
+
+**Scope:** `apps/api`
+
+## Goal
+Add Docker support to the API with two modes:
+- `dev` profile: starts only the PostgreSQL database.
+- `deploy` profile: starts the database, runs migrations,
+  then starts the compiled API.
+
+## Files
+apps/api/
+  Dockerfile          (new: multi-stage build)
+  docker-compose.yml  (updated: profiles, migrate service, api service)
+  .env.example        (updated)</code></pre>
+<p>O que faz disso um guide, e não só documentação, são duas coisas. Ela declara o escopo, então o agente tem um limite. E é curta o bastante para uma pessoa ler em um minuto, então dá para discordar <i>antes</i> de quarenta arquivos mudarem.</p>
+<p>O formato e o hábito vêm do <a href="https://github.com/obra/superpowers">Superpowers</a>, uma metodologia feita de skills que se combinam: ele pergunta o que você quer, mostra a spec em partes curtas para você aprovar e só então monta o plano, antes de qualquer código (<a href="https://github.com/obra/superpowers#how-it-works">README</a>). Por padrão ele escreve tudo em arquivos, então o FutMeet guarda esses arquivos em <code>docs/superpowers/</code>.</p>
+<p class="opinion">Prefiro não commitar spec e plano. O time já conversa sobre o trabalho no ticket, e ele não fica ocupando espaço no repositório depois do merge. A spec também é onde você pega os erros caros: corrigir um parágrafo é a edição mais barata que você vai fazer na semana.</p>
+
+<h3 id="build"><span class="bd">Build</span>: isole e escreva as regras</h3>
+<p>A segunda etapa responde duas perguntas: onde o trabalho acontece e como o agente descobre as regras do projeto.</p>
+<p><b>Onde.</b> Sempre num worktree próprio, nunca na <code>main</code>. Isso está nas regras do projeto e, se alguém tentar commitar na main, um hook barra:</p>
+<pre><code>git worktree add .worktrees/feat-room-link -b feat/room-link
+
+# .githooks/pre-commit
+Direct commits to 'main' are blocked. Create a worktree: git worktree add ...
+Commits from the primary checkout are blocked. Work in a worktree ...</code></pre>
+<p><b>Como.</b> As regras do projeto ficam em <code>.claude/skills/</code>. Cada skill é um <code>SKILL.md</code> curto, de no máximo 100 linhas, que aponta para uma pasta <code>references/</code> com o detalhe. O <code>CLAUDE.md</code> guarda só o índice, então o agente carrega a única skill que combina com a tarefa e mais nada:</p>
+<div class="scroll"><table>
+<tr><th>Trabalhando em</th><th>Skill que o agente carrega</th></tr>
+<tr><td>Qualquer mudança, branch, limpeza</td><td><code>worktree-workflow</code></td></tr>
+<tr><td>Novo módulo da API, rotas</td><td><code>api-fastify-module</code></td></tr>
+<tr><td>Componentes e CSS Modules</td><td><code>component-architecture-css-modules</code></td></tr>
+<tr><td>Formulários</td><td><code>forms-react-hook-form-zod</code></td></tr>
+<tr><td>Testes</td><td><code>testing-vitest</code></td></tr>
+<tr><td>Antes de abrir um PR</td><td><code>pr-gate</code></td></tr>
+</table></div>
+<p>Algumas regras não cabem em config, então ficam escritas em texto. A API segue <code>Route → Controller → Service → Repository → Query</code> e os services não têm try/catch. O web usa CSS Modules e não aceita estilo inline. O código compartilhado entra por alias. Um agente que lê isso antes de mexer em <code>apps/api</code> para de reinventar as camadas a cada tarefa.</p>
+<p class="opinion">Manter cada skill abaixo de 100 linhas é um limite que escolhi de propósito. Instrução longa é lida com menos cuidado, por agentes e por pessoas. O limite também vira um sensor, como você vai ver a seguir.</p>
+<p>Testes fazem parte do Build, não ficam para depois: todo arquivo que o agente cria ou modifica vai com seus testes no mesmo commit.</p>
+
+<h3 id="sensors"><span class="se">Sensors</span>: deixe as checagens decidirem</h3>
+<p>Um sensor é uma checagem automática que passa ou falha, sem meio-termo. O <code>npm run verify</code> roda todos, e um pull request só abre quando todos passam:</p>
+<div class="scroll"><table>
+<tr><th>Sensor</th><th>O que pega</th></tr>
+<tr><td><code>lint</code>, <code>typecheck</code></td><td>Warnings do oxlint, erros de tipo</td></tr>
+<tr><td><code>format:check</code></td><td>Arquivos alterados fora do padrão do Prettier</td></tr>
+<tr><td><code>knip</code></td><td>Arquivos, dependências e binários sem uso</td></tr>
+<tr><td><code>skills:lint</code></td><td>Skills com mais de 100 linhas, links quebrados em <code>references/</code>, skills fora do índice</td></tr>
+<tr><td><code>test:presence</code></td><td>Arquivo de código alterado sem teste, componente web alterado sem teste de a11y</td></tr>
+<tr><td><code>secrets</code>, <code>audit:prod</code></td><td>Credenciais commitadas, vulnerabilidades altas ou críticas</td></tr>
+<tr><td><code>test</code></td><td>Testes falhando, cobertura abaixo do piso</td></tr>
+<tr><td><code>build</code>, <code>bundle</code></td><td>Erros de compilação, bundle do web acima do budget em gzip</td></tr>
+<tr><td><code>db:check</code></td><td>Migrations que não aplicam ou não revertem (sempre no CI)</td></tr>
+</table></div>
+<p>Todos esses são computacionais no sentido da Böckeler: determinísticos e rápidos o bastante para rodar a cada mudança. O FutMeet também tem um inferencial, a skill <code>security-pr-review</code>, mas ela é um reviewer, não um portão.</p>
+<p>Repare que alguns sensors checam o próprio harness: o <code>skills:lint</code> mantém os guides do Build em ordem, e o <code>test:presence</code> faz "todo arquivo vai com teste" deixar de ser desejo e virar regra. É o ciclo que a Böckeler descreve: quando um erro se repete, você transforma o guide em sensor.</p>
+<p>O runner é um script pequeno. Roda cada sensor, imprime um resumo e sai com código diferente de zero se algum falhar:</p>
+<pre><code>// packages/sensors/src/verify.mjs
+export const SENSORS = ['lint', 'typecheck', 'format:check', 'knip', 'skills:lint',
+  'test:presence', 'secrets', 'audit:prod', 'test', 'build', 'bundle'];
+
+// verify failed: test:presence red. Fix the cause, then rerun npm run verify.
+// verify passed: all sensors green.</code></pre>
+<p>Teste você mesmo. O agente mudou um arquivo e esqueceu o teste, então a primeira rodada vai falhar. Escreva o teste que falta e rode de novo, ou tente pular o teste e veja o que acontece.</p>
+<div class="verify" data-verify data-failed="verify failed: {sensor} red. Fix the cause, then rerun npm run verify." data-passed="verify passed: all sensors green." data-cheat="Não vale. Pular ou apagar o teste faz o sensor passar sem resolver nada, e a skill pr-gate não aceita isso. Escreva o teste.">
+  <div class="bar"><button class="run">▶ Rodar npm run verify</button><button class="fix" disabled>Escrever o teste que falta e rodar de novo</button><button class="cheat" disabled>Pular o teste</button></div>
+  <ol class="vlist" aria-label="Sensors">
+    <li data-name="lint"><span class="st"></span>lint</li>
+    <li data-name="typecheck"><span class="st"></span>typecheck</li>
+    <li data-name="format:check"><span class="st"></span>format:check</li>
+    <li data-name="knip"><span class="st"></span>knip</li>
+    <li data-name="skills:lint"><span class="st"></span>skills:lint</li>
+    <li data-name="test:presence" data-fails="1"><span class="st"></span>test:presence</li>
+    <li data-name="secrets"><span class="st"></span>secrets</li>
+    <li data-name="audit:prod"><span class="st"></span>audit:prod</li>
+    <li data-name="test"><span class="st"></span>test</li>
+    <li data-name="build"><span class="st"></span>build</li>
+    <li data-name="bundle"><span class="st"></span>bundle</li>
+  </ol>
+  <p class="vsum" aria-live="polite"></p>
+</div>
+<p>Esse último botão mostra a regra mais importante do pr-gate. O <code>pr-gate</code> diz que a correção precisa mudar código, testes ou config <i>para o sensor passar pelo motivo certo</i>. Pular testes, baixar o piso de cobertura, subir o limite do bundle, adicionar comentário de lint-disable ou <code>@ts-ignore</code> não conta. Sem essa regra, o agente faz tudo passar do jeito mais fácil.</p>
+<p>O bloqueio acontece em três lugares, do mais perto do agente ao mais longe:</p>
+<ol>
+  <li>Um <a href="https://code.claude.com/docs/en/hooks">hook</a> do Claude Code em <code>.claude/settings.json</code> roda antes de todo <code>gh pr create</code> e bloqueia o comando enquanto algum sensor estiver falhando.</li>
+  <li>Git hooks em <code>.githooks/</code> bloqueiam commits na <code>main</code> e no checkout principal.</li>
+  <li>O CI roda os mesmos sensors em todo pull request, então nada depende da máquina local.</li>
+</ol>
+<p class="opinion">Sensor só pega o erro que alguém lembrou de checar. Os meus sensors não dizem se a feature é uma boa ideia nem se o código é fácil de ler. Isso fica com a spec e com o review. Por isso digo que o código está pronto para o merge, não que está seguro.</p>
+
+<h3 id="others">Outros harnesses que valem a leitura</h3>
+<p>O FutMeet é um projeto pequeno. Estes dois são mais conhecidos e mostram escolhas diferentes:</p>
+<div class="tldr">
+  <div class="card sp"><h3>Superpowers</h3><p>Uma metodologia completa entregue como skills: pergunta primeiro, escreve spec, depois plano, depois executa tarefa por tarefa com subagents e review. Começa a funcionar desde a primeira mensagem, porque as skills disparam sozinhas (<a href="https://github.com/obra/superpowers#how-it-works">README</a>). Uso o Superpowers na etapa de Spec do FutMeet.</p></div>
+  <div class="card bd"><h3>Skills do Matt Pocock</h3><p>Skills pequenas e fáceis de combinar para "engenharia de verdade, não vibe coding". Diferente de frameworks que tomam conta do processo todo, elas deixam você adaptar só o que precisar (<a href="https://github.com/mattpocock/skills">README</a>).</p></div>
+</div>
+<p class="opinion">O padrão que levo dos dois: skills são o jeito mais barato de transformar uma regra do projeto em guide. O que elas não dão é o feedback de passou ou falhou. Essa é a parte que acrescentei em <code>packages/sensors</code>.</p>
+
+<h2 id="conclusion">3. Conclusão</h2>
+<p>Um agente é rápido, mas esquecido. O harness faz o projeto lembrar no lugar dele. Juntas, as três etapas ficam assim:</p>
+<div class="scroll"><table>
+<tr><th>Etapa</th><th>Tipo de controle</th><th>Pergunta que responde</th><th>No FutMeet</th></tr>
+<tr><td class="sp">Spec</td><td>Guide (feedforward)</td><td>O que estamos construindo e por que deste jeito?</td><td>Spec e plano antes do código, ADRs no repositório</td></tr>
+<tr><td class="bd">Build</td><td>Guide (feedforward)</td><td>Onde o trabalho acontece e como este projeto faz as coisas?</td><td>Worktrees, git hooks, skills, testes junto com o código</td></tr>
+<tr><td class="se">Sensors</td><td>Feedback</td><td>Dá para fazer o merge?</td><td><code>npm run verify</code>, o hook de PR, o CI</td></tr>
+</table></div>
+<p>O monorepo também ajuda. Com web, API e contrato compartilhado no mesmo lugar, sobra um conjunto de skills, um <code>verify</code> e um grafo de tasks que o Turbo mantém em ordem. Com vários repositórios, eu teria que manter vários harnesses em sincronia.</p>
+<p>Se quiser testar sem reconstruir nada, comece pequeno e nesta ordem:</p>
+<ol>
+  <li><b>Um sensor.</b> Faça um único comando que rode lint, tipos, testes e build, e devolva código diferente de zero em qualquer falha.</li>
+  <li><b>Uma regra que o agente quebra.</b> Escreva como uma skill curta ou uma seção do seu arquivo de instruções. Quando ele quebrar de novo, transforme em checagem.</li>
+  <li><b>Um hábito antes do código.</b> Peça uma spec curta e leia antes de o agente começar.</li>
+</ol>
+<p class="take">O harness nunca fica pronto. Sempre que o agente fizer algo inesperado, pergunte qual guide teria evitado ou qual sensor teria pegado, e adicione esse. Com o tempo, você revisa menos código e mais ideia.</p>
+
+<h2 id="sources">Fontes</h2>
+<ul class="sources">
+<li><a href="https://martinfowler.com/articles/harness-engineering.html">Birgitta Böckeler: Harness engineering for coding agent users (martinfowler.com)</a></li>
+<li><a href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering, leveraging Codex in an agent-first world</a></li>
+<li><a href="https://github.com/cmarcal/futmeet">Repositório e README do FutMeet</a></li>
+<li><a href="https://github.com/obra/superpowers">Superpowers (obra)</a></li>
+<li><a href="https://github.com/mattpocock/skills">Skills For Real Engineers (Matt Pocock)</a></li>
+<li><a href="https://turborepo.com/docs/crafting-your-repository/configuring-tasks">Turborepo: Configuring tasks</a></li>
+<li><a href="https://fastify.dev/">Fastify</a></li>
+<li><a href="https://code.claude.com/docs/en/hooks">Claude Code: Hooks</a></li>
+</ul>
+</div>

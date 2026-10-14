@@ -1,0 +1,81 @@
+/* Spec / Build / Sensors article. Builds on ssr-aws/article.css (.ax scope) */
+.ax{--sp:#8db4e8;--bd:#d9a441;--se:#7fc58f}
+.ax .sp{color:var(--sp)}
+.ax .bd{color:var(--bd)}
+.ax .se{color:var(--se)}
+.ax .stages{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+@media(max-width:700px){.ax .stages{grid-template-columns:1fr}}
+.ax .stages .card p{margin:.2em 0;font-size:.95rem}
+.ax .card.sp{border-color:var(--sp);color:var(--fg)}
+.ax .card.bd{border-color:var(--bd);color:var(--fg)}
+.ax .card.se{border-color:var(--se);color:var(--fg)}
+.ax .card .num{font:700 .7rem system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.ax h2 .hash,.ax h3 .hash{margin-left:.45rem;font-weight:400;text-decoration:none;color:var(--mut);opacity:0;transition:opacity .2s}
+.ax h2:hover .hash,.ax h3:hover .hash,.ax .hash:focus-visible{opacity:1}
+@media(hover:none){.ax h2 .hash,.ax h3 .hash{opacity:.5}}
+.ax h3{scroll-margin-top:1rem}
+
+/* stage-colored stepper nodes */
+.ax .stepper .node.sp.hot rect{stroke:var(--sp)}
+.ax .stepper .node.bd.hot rect{stroke:var(--bd)}
+.ax .stepper .node.se.hot rect{stroke:var(--se)}
+.ax .stepper .node.red.hot rect{stroke:var(--bad)}
+.ax .edge.red.hot{stroke:var(--bad)}
+.ax .phase.sp{fill:var(--sp)}
+.ax .phase.bd{fill:var(--bd)}
+.ax .phase.se{fill:var(--se)}
+
+/* seg buttons per stage */
+.ax .seg button[aria-pressed=true].sp{background:var(--sp);color:var(--bg)}
+.ax .seg button[aria-pressed=true].bd{background:var(--bd);color:var(--bg)}
+.ax .seg button[aria-pressed=true].se{background:var(--se);color:var(--bg)}
+.ax .seg button[aria-pressed=true].all{background:var(--fg);color:var(--bg)}
+
+/* folder map */
+.ax .tree{list-style:none;margin:.8rem 0;padding:0;font:.85rem ui-monospace,Consolas,monospace}
+.ax .tree li{display:grid;grid-template-columns:minmax(10rem,15rem) 1fr;gap:.2rem 1rem;padding:.4rem .6rem;border-left:3px solid var(--rule);margin:.15rem 0;opacity:.3;transition:opacity .35s,border-color .35s;background:var(--card)}
+.ax .tree li.on{opacity:1}
+.ax .tree li.on[data-show~=spec]{border-left-color:var(--sp)}
+.ax .tree li.on[data-show~=build]{border-left-color:var(--bd)}
+.ax .tree li.on[data-show~=sensors]{border-left-color:var(--se)}
+.ax .tree b{font-weight:600;word-break:break-all}
+.ax .tree span{font:.85rem system-ui,sans-serif;color:var(--mut)}
+@media(max-width:560px){.ax .tree li{grid-template-columns:1fr}}
+
+/* verify simulator */
+.ax .verify{background:var(--card);border-left:4px solid var(--se);padding:.8rem 1.1rem;margin:1rem 0}
+.ax .verify .bar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem}
+.ax .verify button{font:.85rem system-ui,sans-serif;padding:.4rem 1rem;border:1px solid var(--rule);border-radius:999px;background:none;color:var(--fg);cursor:pointer}
+.ax .verify button:disabled{opacity:.4;cursor:default}
+.ax .verify button:focus-visible{outline:2px solid var(--se);outline-offset:2px}
+.ax .vlist{list-style:none;margin:0;padding:0;font:.85rem ui-monospace,Consolas,monospace}
+.ax .vlist li{display:flex;gap:.7rem;align-items:baseline;padding:.15rem 0;color:var(--mut);transition:color .2s}
+.ax .vlist .st{flex:none;width:3.4rem;font-weight:700;letter-spacing:.03em}
+.ax .vlist li.run{color:var(--fg)}
+.ax .vlist li.run .st::after{content:"..."}
+.ax .vlist li.ok{color:var(--fg)}
+.ax .vlist li.ok .st{color:var(--ok)}
+.ax .vlist li.ok .st::after{content:"GREEN"}
+.ax .vlist li.no{color:var(--fg)}
+.ax .vlist li.no .st{color:var(--bad)}
+.ax .vlist li.no .st::after{content:"RED"}
+.ax .vlist li.idle .st::after{content:"-"}
+.ax .vsum{margin:.7rem 0 0;font:.88rem ui-monospace,Consolas,monospace;min-height:3.2em}
+.ax .vsum.bad{color:var(--bad)}
+.ax .vsum.good{color:var(--ok)}
+
+html[lang="pt-br"] .ax .vlist .st{width:4.2rem}
+html[lang="pt-br"] .ax .vlist li.ok .st::after{content:"PASSOU"}
+html[lang="pt-br"] .ax .vlist li.no .st::after{content:"FALHOU"}
+
+/* softer label for the closing tip */
+.ax .take::before{content:"Tip"}
+html[lang="pt-br"] .ax .take::before{content:"Dica"}
+
+/* pipeline recap table */
+.ax td.sp,.ax td.bd,.ax td.se{font-weight:600}
+
+@media(prefers-reduced-motion:reduce){
+  .ax .edge.hot{animation:none}
+  .ax .tree li{transition:none}
+}
