@@ -3,11 +3,11 @@
   <header>
     <h1>{{ .Title }}</h1>
     {{ if .Date }}{{ if eq .Section "articles" }}
-    <p class="meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_medium" }}</time> · {{ i18n "readingTime" .ReadingTime }}
+    <p class="meta"><span class="meta-info"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_medium" }}</time> · {{ i18n "readingTime" .ReadingTime }}</span>
       {{ range .Params.tags }}<span class="tag">{{ . }}</span>{{ end }}</p>
     {{ end }}{{ end }}
   </header>
-  <div class="prose{{ if .Params.wide }} wide{{ end }}">{{ .Content | replaceRE `<a href="(https?://[^"]+)"` `<a target="_blank" rel="noopener noreferrer" href="$1"` | safeHTML }}</div>
+  <div class="prose{{ if .Params.wide }} wide{{ end }}"{{ if eq .Section "articles" }} data-toc-label="{{ i18n "onThisPage" }}"{{ end }}>{{ .Content | replaceRE `<a href="(https?://[^"]+)"` `<a target="_blank" rel="noopener noreferrer" href="$1"` | safeHTML }}</div>
   {{ if eq .Section "articles" }}<p><a href="{{ "articles/" | relLangURL }}">← {{ i18n "allArticles" }}</a></p>{{ end }}
 </article>
 {{ end }}

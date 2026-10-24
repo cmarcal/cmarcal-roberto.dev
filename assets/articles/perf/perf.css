@@ -1,0 +1,102 @@
+/* CWV + Apdex article. Builds on ssr-aws/article.css and harness/harness.css (--sp Sentry, --bd Faro, --se Prometheus) */
+.ax .seg button{padding:.45rem .85rem}
+.ax .seg.plain button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+.ax .seg.plain button:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+
+/* compact tool cards under the lead */
+.ax .stages{grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.9rem 0}
+.ax .stages .card{padding:.5rem .7rem}
+.ax .stages .card h3{margin:0 0 .1rem;font-size:.95rem;color:var(--fg)}
+.ax .stages .card p{margin:0;font-size:.82rem;color:var(--mut)}
+
+/* code blocks wrap on phones instead of scrolling sideways */
+@media(max-width:700px){
+  .ax{overflow-x:clip}
+  .ax pre{white-space:pre-wrap;overflow-wrap:anywhere;overflow-x:visible;font-size:.78rem;padding:.8rem}
+}
+
+/* four-column tables become stacked cards on phones, so nothing scrolls sideways */
+@media(max-width:640px){
+  .ax table.stack,.ax table.stack tbody{display:block;width:100%}
+  .ax table.stack tr:first-child{display:none}
+  .ax table.stack tr{display:block;padding:.6rem 0;border-bottom:1px solid var(--rule)}
+  .ax table.stack td{display:block;border:0;padding:.2rem .4rem}
+  .ax table.stack td:first-child{font-weight:700;padding-bottom:.3rem}
+  .ax table.stack td[data-label]::before{content:attr(data-label);display:block;font:700 .68rem system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+}
+
+/* request path bands */
+.ax .band{fill:none;stroke-width:2}
+.ax .band.sp{stroke:var(--sp)}
+.ax .band.bd{stroke:var(--bd)}
+.ax .band.se{stroke:var(--se)}
+.ax .bandlab{font:600 12px system-ui,sans-serif}
+.ax .bandlab.sp{fill:var(--sp)}
+.ax .bandlab.bd{fill:var(--bd)}
+.ax .bandlab.se{fill:var(--se)}
+.ax .toolnote{background:var(--card);border-left:4px solid var(--rule);padding:.6rem 1rem;margin:.6rem 0;font-size:.95rem}
+.ax .toolnote.sp{border-color:var(--sp)}
+.ax .toolnote.bd{border-color:var(--bd)}
+.ax .toolnote.se{border-color:var(--se)}
+.ax .toolnote.sp,.ax .toolnote.bd,.ax .toolnote.se{color:var(--fg)}
+.ax .toolnote p{margin:.3em 0}
+
+/* symptom -> fix list (collapsible rows) */
+.ax .fixes{list-style:none;margin:.8rem 0;padding:0}
+.ax .fixes li{border-left:3px solid var(--bd);margin:.2rem 0;background:var(--card);font-size:.92rem;line-height:1.45}
+.ax .fixes summary{display:flex;gap:.6rem;align-items:baseline;justify-content:space-between;padding:.6rem .8rem;cursor:pointer;list-style:none;font-weight:600}
+.ax .fixes summary{transition:background-color .2s}
+.ax .fixes summary:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.ax .fixes summary::-webkit-details-marker{display:none}
+.ax .fixes .ic{position:relative;flex:none;align-self:center;width:.6rem;height:.6rem;color:var(--mut)}
+.ax .fixes .ic::before,.ax .fixes .ic::after{content:"";position:absolute;left:0;top:50%;width:100%;height:2px;margin-top:-1px;border-radius:1px;background:currentColor;transition:transform .25s ease}
+.ax .fixes .ic::after{transform:rotate(90deg)}
+.ax .fixes details[open]:not(.closing) .ic::after{transform:rotate(0deg)}
+.ax .fixes summary:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+.ax .fixes details[open]:not(.closing)>summary{background:color-mix(in srgb,var(--fg) 4%,var(--card))}
+.ax .fixes .ttl{flex:1}
+.ax .fixes .tags{display:flex;flex-wrap:wrap;gap:.25rem;justify-content:flex-end}
+.ax .fixes .tags i{font:600 .68rem system-ui,sans-serif;font-style:normal;padding:.1rem .45rem;border:1px solid var(--rule);border-radius:999px;color:var(--mut);white-space:nowrap}
+.ax .fixes .fbody{display:grid;grid-template-columns:1fr 1fr 8rem;gap:.4rem 1.2rem;padding:0 .8rem .7rem 2rem}
+.ax .fixes .wh{font-weight:600}
+.ax .fixes .cz::before,.ax .fixes .fx::before,.ax .fixes .wh::before{display:block;font:700 .68rem system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:.15rem}
+.ax .fixes .cz::before{content:"Cause"}
+.ax .fixes .fx::before{content:"Fix"}
+.ax .fixes .wh::before{content:"Where it is fixed"}
+@media(max-width:700px){
+  .ax .fixes summary{flex-wrap:wrap;gap:.3rem .4rem}
+  .ax .fixes .ttl{flex:1 1 calc(100% - 1.2rem)}
+  .ax .fixes .tags{flex:1 0 100%;justify-content:flex-start;padding-left:1.1rem}
+  .ax .fixes .fbody{grid-template-columns:1fr;padding:0 .8rem .8rem 1rem}
+}
+
+/* Apdex calculator */
+.ax .apdex{background:var(--card);border-left:4px solid var(--se);padding:.8rem 1.1rem;margin:1rem 0}
+.ax .apdex label{display:block;font:.9rem system-ui,sans-serif;margin-bottom:.3rem}
+.ax .apdex input[type=range]{width:100%;accent-color:var(--se)}
+.ax .agrid{display:flex;flex-wrap:wrap;gap:.3rem;margin:.8rem 0}
+.ax .agrid span{min-width:3.6rem;text-align:center;font:.78rem ui-monospace,Consolas,monospace;padding:.3rem .25rem;border:1px solid var(--rule);border-top-width:4px;background:var(--bg);transition:border-color .25s}
+.ax .agrid .zs{border-top-color:var(--ok)}
+.ax .agrid .zt{border-top-color:var(--bd)}
+.ax .agrid .zf{border-top-color:var(--bad)}
+.ax .ascore{font:700 1.7rem system-ui,sans-serif;margin:.2rem 0}
+.ax .acounts,.ax .aformula{font:.85rem ui-monospace,Consolas,monospace;color:var(--mut);margin:.2rem 0}
+
+/* read both signals */
+.ax .matrix{background:var(--card);border-left:4px solid var(--fg);padding:.6rem 1rem;margin:.8rem 0}
+.ax .matrix .axes{display:flex;flex-wrap:wrap;gap:.2rem 1.8rem}
+.ax .matrix .axis{margin:.1rem 0}
+.ax .matrix .axis b{display:block;font:600 .75rem system-ui,sans-serif;color:var(--mut)}
+.ax .matrix .seg{margin:.2rem 0}
+.ax .matrix .out{margin-top:.4rem;min-height:5.2em;font-size:.93rem}
+.ax .matrix .out p{margin:.2em 0}
+.ax .matrix .out [hidden]{display:none}
+
+html[lang="pt-br"] .ax .fixes .cz::before{content:"Causa"}
+html[lang="pt-br"] .ax .fixes .fx::before{content:"Correção"}
+html[lang="pt-br"] .ax .fixes .wh::before{content:"Onde se corrige"}
+
+@media(prefers-reduced-motion:reduce){
+  .ax .agrid span{transition:none}
+  .ax .fixes summary,.ax .fixes .ic::before,.ax .fixes .ic::after{transition:none}
+}
