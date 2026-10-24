@@ -129,6 +129,10 @@ details.collapsible[open]:not(.closing)>summary::after{transform:rotate(180deg);
 }
 .article .prose.wide{max-width:none}
 .meta{font-size:.85rem;color:var(--muted)}
+.article header .meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.article header .meta .meta-info{margin-right:4px}
+.article header .meta .tag{margin-left:0;white-space:nowrap}
+@media (max-width:700px){.article header .meta .meta-info{flex:0 0 100%;margin-right:0}}
 body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .nav,main,footer{width:100%}
 main{flex:1}

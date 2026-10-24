@@ -1,0 +1,239 @@
+---
+title: "Core Web Vitals and Apdex: two lenses on a micro frontend"
+date: 2026-10-24
+description: "How to measure and improve a React micro frontend plugged into a Next.js host on AWS, using Core Web Vitals and Apdex with Sentry, Grafana Faro and Prometheus."
+tags: [Performance, Web Vitals, Observability, Module Federation]
+wide: true
+styles: [articles/ssr-aws/article.css, articles/harness/harness.css, articles/perf/perf.css]
+scripts: [articles/ssr-aws/anim.js, articles/harness/harness.js, articles/perf/perf.js]
+---
+<div class="ax">
+<p class="sub">Core Web Vitals tell you how the page felt. Apdex tells you how the calls behind it behaved. Looking at both together gives the best overview of performance health.</p>
+<p class="lead">A user does not need to know where the bottleneck is. A team does, because the fix depends on where it sits: the CDN, the host, the micro frontend or the API. This article uses two metrics, <b class="sp">Core Web Vitals</b> and <b class="se">Apdex</b>, and three tools, <b class="sp">Sentry</b>, <b class="bd">Grafana Faro</b> and <b class="se">Prometheus</b>, to find that point. The example is a React micro frontend (MFE) rendered on the client side and integrated through Module Federation into a Next.js host with SSR, all on AWS.</p>
+<div class="stages">
+  <div class="card sp"><h3>Sentry</h3><p>Web Vitals</p></div>
+  <div class="card bd"><h3>Faro</h3><p>The MFE</p></div>
+  <div class="card se"><h3>Prometheus</h3><p>Apdex</p></div>
+</div>
+<ol class="toc" style="list-style:none"><li><a href="#intro">1. Introduction</a></li><li><a href="#dev">2. Development</a></li><li><a href="#conclusion">3. Conclusion</a></li><li><a href="#references">References</a></li></ol>
+
+<h2 id="intro">1. Introduction</h2>
+<h3 id="scenario">The scenario</h3>
+<p>The system has two applications that the user sees as one page:</p>
+<ul>
+  <li><b>The host</b> is a Next.js app that renders on the server (SSR). It owns the page shell, the routes and the first HTML.</li>
+  <li><b>The MFE</b> is a React app that runs on the client side: the UI is built in the browser, not on the server. The host loads it at runtime through Module Federation, so it ships as its own set of files and is deployed on its own.</li>
+  <li><b>AWS</b> carries both: a CDN (CloudFront) in front, static files on S3, the host and the API behind a load balancer.</li>
+</ul>
+<p>The measurements and improvements covered here happen in the MFE. When the outcome depends on the host, the text points out what the host can do to help and in which situations it becomes the problem.</p>
+<p class="opinion">In a micro frontend architecture, responsibility for performance is split. The page belongs to the host, but part of the content belongs to the MFE. Without separating the data by owner, it is hard to tell who should fix a slow page.</p>
+
+<h3 id="cwv">Core Web Vitals in one minute</h3>
+<p>Core Web Vitals (CWV) are a set of Google metrics that measure user experience in loading (LCP), interactivity (INP) and visual stability (CLS). Each one has a target, and a page is considered good when all three targets are met at the <b>75th percentile</b> of loads, evaluated separately for mobile and desktop (<a href="https://web.dev/articles/vitals">web.dev: Web Vitals</a>):</p>
+<div class="scroll"><table>
+<tr><th>Metric</th><th>Asks</th><th>Good</th></tr>
+<tr><td><b>LCP</b>, Largest Contentful Paint</td><td>When did the main content show up?</td><td>2.5 s or less</td></tr>
+<tr><td><b>INP</b>, Interaction to Next Paint</td><td>How fast does the page respond to an interaction?</td><td>200 ms or less</td></tr>
+<tr><td><b>CLS</b>, Cumulative Layout Shift</td><td>Does the content shift while the page is being used?</td><td>0.1 or less</td></tr>
+</table></div>
+<p>INP replaced First Input Delay (FID) and became one of the main CWV metrics in 2024. CWV are measured in the browser of a real user, so they include the network, the device and everything the page loads, yours or not. Even browser extensions count, since they can delay page rendering (<a href="https://www.debugbear.com/blog/chrome-extension-performance-2021">test of about a thousand Chrome extensions</a>).</p>
+
+<h3 id="apdex">Apdex in one minute</h3>
+<p>Apdex turns a pile of response times into one number between 0 and 1. You choose a target time <b>T</b>. Each request lands in one of three zones, and the score is the weighted share (<a href="https://docs.newrelic.com/docs/apm/new-relic-apm/apdex/apdex-measure-user-satisfaction/">New Relic: Apdex</a>, <a href="https://prometheus.io/docs/practices/histograms/">Prometheus: histograms and Apdex</a>):</p>
+<div class="tldr">
+  <div class="card se"><h3>The zones</h3><ul><li><b>Satisfied</b>: up to T</li><li><b>Tolerating</b>: above T, up to 4T</li><li><b>Frustrated</b>: above 4T, or failed</li></ul></div>
+  <div class="card se"><h3>The score</h3><p><code>(satisfied + tolerating / 2) / total</code></p><p>1.00 means every request was fast. A failed request counts against you, the same as a very slow one.</p></div>
+</div>
+<p>Try it below: twenty fixed requests, and the slider sets the value of T. Watch the score change even though no request got faster or slower:</p>
+<div class="apdex" data-apdex data-samples="[120,180,90,240,310,150,200,95,1400,260,380,170,2200,140,210,520,160,110,null,null]" data-err="5xx" data-counts="{s} satisfied · {t} tolerating (up to {lim}) · {f} frustrated">
+  <label for="apdex-t">Target time T: <b class="tval"></b></label>
+  <input id="apdex-t" type="range" min="100" max="1000" step="50" value="300">
+  <div class="agrid" role="list" aria-label="Twenty requests, colored by zone"></div>
+  <p class="ascore" aria-live="polite"></p>
+  <p class="acounts"></p>
+  <p class="aformula"></p>
+</div>
+<p class="opinion inf">Apdex is easy to game by raising T, and hard to compare between teams that chose different Ts. Its value is the trend for one endpoint with one T that you wrote down, not the absolute number.</p>
+
+<h3 id="together">Why both</h3>
+<p>They look at different things, so they fail differently:</p>
+<ul>
+  <li><b>CWV</b> describe the <i>experience</i> in the browser. They tell you the page felt slow, but not which request caused it.</li>
+  <li><b>Apdex</b> describes the <i>latency of calls</i> against a target. It tells you an endpoint is slow, but not whether the user even noticed.</li>
+</ul>
+<p>One says <i>that</i> it hurts, the other helps find <i>where</i>. Later, the four combinations go in a small table.</p>
+
+<h2 id="dev">2. Development</h2>
+<h3 id="tools">Three tools, three cuts</h3>
+<p>The three tools do not do the same job. Each one sees a different slice of the request path, and that is the reason to have all three. Pick a tool to see its slice:</p>
+<div class="seg" data-toggle="tool" role="group" aria-label="Tool">
+  <button class="all" data-value="all" aria-pressed="true">All</button>
+  <button class="sp" data-value="sentry" aria-pressed="false">Sentry</button>
+  <button class="bd" data-value="faro" aria-pressed="false">Faro</button>
+  <button class="se" data-value="prom" aria-pressed="false">Prometheus</button>
+</div>
+<svg viewBox="0 0 730 270" role="img" aria-label="Request path: CloudFront and S3, host on the server, host page in the browser, MFE in the browser, API. Sentry covers from the infrastructure response to the browser render, Faro covers the MFE, Prometheus covers the API.">
+  <path class="edge" d="M130 78H150"/><path class="edge" d="M280 78H300"/><path class="edge" d="M430 78H450"/><path class="edge" d="M580 78H600"/>
+  <text class="phase" x="365" y="26" text-anchor="middle">request path</text>
+  <g class="node"><rect class="b" x="0" y="50" width="130" height="56" rx="4"/><text x="65" y="75" text-anchor="middle">CloudFront</text><text x="65" y="91" text-anchor="middle" opacity=".6">CDN + S3 files</text></g>
+  <g class="node"><rect class="b" x="150" y="50" width="130" height="56" rx="4"/><text x="215" y="75" text-anchor="middle">Host (Next.js)</text><text x="215" y="91" text-anchor="middle" opacity=".6">SSR on AWS</text></g>
+  <g class="node"><rect class="b" x="300" y="50" width="130" height="56" rx="4"/><text x="365" y="75" text-anchor="middle">Browser</text><text x="365" y="91" text-anchor="middle" opacity=".6">host page</text></g>
+  <g class="node"><rect class="b" x="450" y="50" width="130" height="56" rx="4"/><text x="515" y="75" text-anchor="middle">Browser</text><text x="515" y="91" text-anchor="middle" opacity=".6">MFE (React)</text></g>
+  <g class="node"><rect class="b" x="600" y="50" width="130" height="56" rx="4"/><text x="665" y="75" text-anchor="middle">API / BFF</text><text x="665" y="91" text-anchor="middle" opacity=".6">main endpoint</text></g>
+
+  <g class="xtra" data-for="tool" data-show="all sentry"><path class="band sp" d="M215 140V152H515V140"/><text class="bandlab sp" x="365" y="174" text-anchor="middle">Sentry: infrastructure response → browser render</text></g>
+  <g class="xtra" data-for="tool" data-show="all faro"><path class="band bd" d="M450 190V202H580V190"/><text class="bandlab bd" x="515" y="224" text-anchor="middle">Faro: the MFE only</text></g>
+  <g class="xtra" data-for="tool" data-show="all prom"><path class="band se" d="M600 240V252H730V240"/><text class="bandlab se" x="665" y="268" text-anchor="middle">Prometheus: the API</text></g>
+</svg>
+<div class="toolnote panel" data-for="tool" data-show="all"><p>Sentry sees the user's side of the page, Faro sees only your micro frontend, Prometheus sees the endpoint it calls. Together they cover the whole path without anyone measuring the same thing twice.</p></div>
+<div class="toolnote sp panel" data-for="tool" data-show="sentry">
+  <p><b>Sentry is where Core Web Vitals are read.</b> Its browser SDK captures LCP, INP, CLS, FCP and TTFB from real page loads and rolls them into a 0 to 100 performance score, weighted 30% LCP, 30% INP, 15% CLS, 15% FCP and 10% TTFB (<a href="https://docs.sentry.io/product/dashboards/sentry-dashboards/frontend/web-vitals.md">Sentry: Web Vitals</a>).</p>
+  <p>The span that matters here runs from the moment the infrastructure answers (TTFB) to the moment the browser paints. That is the stretch where the MFE's cost shows up: downloading files, running them and drawing the result.</p>
+  <p><b>Caveat:</b> Sentry's Web Vitals dashboard covers initial page loads and interactions, not navigations. If the user moves between routes inside the host without a full load, those moves are not in the score.</p>
+</div>
+<div class="toolnote bd panel" data-for="tool" data-show="faro">
+  <p><b>Faro is the MFE's own health chart.</b> The Faro Web SDK captures web vitals (TTFB, CLS, FCP, INP, LCP, built on the <code>web-vitals</code> package), errors, logs, sessions and traces, and every measurement carries a rating of good, needs improvement or poor plus attribution, such as the LCP element (<a href="https://grafana.com/docs/grafana-cloud/monitor-applications/frontend-observability/instrument/web-vitals/">Grafana: Web vitals</a>).</p>
+  <p>When it is initialized inside the MFE with the MFE's own app name and version, everything it reports belongs to that micro frontend, so a release of the MFE can be compared with the one before it without the host's noise.</p>
+</div>
+<div class="toolnote se panel" data-for="tool" data-show="prom">
+  <p><b>Prometheus is where Apdex works best.</b> It does not see the browser. It sees the requests that arrive at your main endpoint, and a latency histogram there is exactly what Apdex needs, with a target and a tolerated limit read straight from the buckets (<a href="https://prometheus.io/docs/practices/histograms/">Prometheus: histograms and summaries</a>).</p>
+  <p>This is the communication between the endpoint and the frontend: how many calls were fast, how many were slow, how many failed.</p>
+  <p class="opinion inf">What Prometheus measures is the latency the server saw. It does not include the user's network. When a call looks fine in Prometheus and slow in Sentry or Faro, the gap is network, CDN or the browser.</p>
+</div>
+
+<div class="scroll"><table class="stack">
+<tr><th></th><th class="sp">Sentry</th><th class="bd">Faro</th><th class="se">Prometheus</th></tr>
+<tr><td><b>Sees</b></td><td data-label="Sentry">The page as the user lives it</td><td data-label="Faro">The MFE alone</td><td data-label="Prometheus">The API that the MFE calls</td></tr>
+<tr><td><b>Best at</b></td><td data-label="Sentry">Core Web Vitals, from response to render</td><td data-label="Faro">MFE health per release</td><td data-label="Prometheus">Apdex and latency of the main endpoint</td></tr>
+<tr><td><b>Question</b></td><td data-label="Sentry">Does the page feel fast?</td><td data-label="Faro">Is this micro frontend healthy?</td><td data-label="Prometheus">Is the backend answering in time?</td></tr>
+<tr><td><b>Blind to</b></td><td data-label="Sentry">Which API call was slow, without tracing</td><td data-label="Faro">The host and everything outside the MFE</td><td data-label="Prometheus">Network and rendering on the client</td></tr>
+</table></div>
+<p class="opinion">None of them is the winner. For a first step, Sentry is the natural start, because the page is what the user and Google judge. The other two answer the question that comes next.</p>
+
+<h3 id="setup">Wiring them up</h3>
+<p>Each tool needs very little code. What matters is where it lives and what you call it.</p>
+<p><b>Sentry</b> goes in the app entry. The tracing integration is what captures the page-load vitals, and <code>tracePropagationTargets</code> links the frontend request to the backend span (<a href="https://docs.sentry.io/platforms/javascript/guides/react/tracing/">Sentry: React tracing</a>):</p>
+<pre><code>import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://&lt;key&gt;@o&lt;orgId&gt;.ingest.sentry.io/&lt;projectId&gt;",
+  integrations: [Sentry.browserTracingIntegration()],
+  tracesSampleRate: 0.2,                       // 1.0 while testing, lower in production
+  tracePropagationTargets: [/^https:\/\/api\.example\.com/],
+});</code></pre>
+<p class="opinion inf">With an MFE, a good practice is to add a tag such as <code>mfe: "checkout"</code> and the release version to Sentry events, so a poor score can be filtered by owner. Sentry reports the page, and the page has more than one owner.</p>
+
+<p><b>Faro</b> is initialized inside the MFE with its own name and version. That is what makes it a cut of the MFE (<a href="https://github.com/grafana/faro-web-sdk">Faro Web SDK</a>):</p>
+<pre><code>import { initializeFaro, getWebInstrumentations } from "@grafana/faro-web-sdk";
+
+initializeFaro({
+  url: "https://collector.example.com/collect",
+  app: { name: "checkout-mfe", version: "1.4.2" },
+  instrumentations: [...getWebInstrumentations()],   // includes Web Vitals
+});</code></pre>
+<p class="opinion inf">Agree with the host team about who initializes what. If both the host and the MFE call the initializer on the same page, you want two clearly named apps, not one confused one.</p>
+
+<p><b>Prometheus</b> needs a latency histogram on the API, with buckets at exactly your T and 4T. The docs are explicit: you must have buckets at the exact boundaries, and a common choice is a tolerated limit of about four times the target. With T = 0.3 s and 4T = 1.2 s:</p>
+<pre><code># Apdex over 5 minutes. Buckets are cumulative, so satisfied counts twice
+# and tolerating once, hence the division by 2. Failed requests stay in
+# the denominator only, so they count as frustrated.
+(
+    sum(rate(http_request_duration_seconds_bucket{le="0.3", status!~"5.."}[5m]))
+  + sum(rate(http_request_duration_seconds_bucket{le="1.2", status!~"5.."}[5m]))
+) / 2
+/ sum(rate(http_request_duration_seconds_count[5m]))</code></pre>
+<p>The Prometheus docs' own example does not exclude failed requests, and they say a strictly correct Apdex has to. The <code>status</code> filter above is one way to do that. The metric and label names are yours to match with your instrumentation.</p>
+
+<h3 id="drag">What drags the numbers down</h3>
+<p>These are the problems to look for first in this kind of system, each with its cause and fix. Tap an item to see the cause, the fix and where it is fixed:</p>
+<ul class="fixes">
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">A waterfall before the first paint</span><span class="tags"><i>LCP</i></span></summary><div class="fbody"><div class="cz">HTML, then host JavaScript, then the MFE's <code>remoteEntry</code>, then its chunks, then data, then render. Each step waits for the one before.</div><div class="fx">Start the remote earlier: preload its entry from the host's <code>&lt;head&gt;</code> or with the Module Federation runtime, which has preloading in version 2 (<a href="https://module-federation.io/">Module Federation</a>). Keep the number of chunks on the critical path small.</div><div class="wh">Host + MFE</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">Fetch on render</span><span class="tags"><i>LCP</i><i>Apdex</i></span></summary><div class="fbody"><div class="cz">The MFE mounts and only then asks the API for what it needs to paint. The slowest call sets the LCP.</div><div class="fx">Fire the request when the remote loads, not when the component mounts. Aggregate what the first view needs into one BFF call instead of several in sequence.</div><div class="wh">MFE</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">The entry file is cached wrong</span><span class="tags"><i>LCP</i></span></summary><div class="fbody"><div class="cz">A long TTL on <code>remoteEntry.js</code> serves old versions. With no cache, every visit has to fetch the file again from the origin.</div><div class="fx">Short <code>max-age</code> with <code>stale-while-revalidate</code> on the entry, long and immutable on content-hashed chunks, set in the CloudFront cache policy or in the S3 metadata (<a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html">CloudFront: expiration</a>). Keep old chunks around for a while, or users on the previous version hit 404s (<a href="https://openedx.atlassian.net/wiki/spaces/COMM/pages/4802543637">Open edX notes</a>).</div><div class="wh">Infra (CloudFront, S3)</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">The same library downloaded twice</span><span class="tags"><i>LCP</i><i>INP</i></span></summary><div class="fbody"><div class="cz">React ships in the host and again in the MFE.</div><div class="fx">Share the common dependencies as singletons in the federation config. Sharing reduces the download at runtime, and the share strategy trades strict versions for speed (<a href="https://rspack.rs/plugins/webpack/module-federation-plugin">Rspack: Module Federation plugin</a>).</div><div class="wh">Host + MFE</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">The LCP element appears late</span><span class="tags"><i>LCP</i></span></summary><div class="fbody"><div class="cz">A hero image that only exists after the MFE runs, or one marked as lazy.</div><div class="fx">Make the LCP resource discoverable early, give it high <code>fetchpriority</code> and never lazy-load it (<a href="https://web.dev/articles/optimize-lcp">web.dev: optimize LCP</a>). Faro's attribution tells you which element it is.</div><div class="wh">MFE + Host</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">Slow first byte</span><span class="tags"><i>LCP</i></span></summary><div class="fbody"><div class="cz">No CDN cache in front, redirects, an origin far from users.</div><div class="fx">Put CloudFront in front of the host and assets, avoid redirects and cache-busting parameters. This one is mostly the host's.</div><div class="wh">Host + Infra</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">An empty slot</span><span class="tags"><i>CLS</i></span></summary><div class="fbody"><div class="cz">The server HTML has a hole where the MFE will mount, so everything below jumps when it arrives.</div><div class="fx">Reserve the space: a <code>min-height</code> or aspect ratio on the slot, and a skeleton with the final size until the MFE paints.</div><div class="wh">Host</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">Late content with no size</span><span class="tags"><i>CLS</i></span></summary><div class="fbody"><div class="cz">Images without dimensions, web fonts that swap, banners injected after load.</div><div class="fx">Set <code>width</code> and <code>height</code>, preload the main font and choose a fallback with similar metrics.</div><div class="wh">MFE</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">A heavy render after an interaction</span><span class="tags"><i>INP</i></span></summary><div class="fbody"><div class="cz">Big lists and state kept far above the components that use it, so one click re-renders half the screen.</div><div class="fx">Move state closer to the components that use it, virtualize long lists and mark non-urgent updates with <code>useTransition</code>.</div><div class="wh">MFE</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">A busy main thread</span><span class="tags"><i>INP</i></span></summary><div class="fbody"><div class="cz">Large bundles, third-party scripts and long tasks that block the next paint.</div><div class="fx">Load rarely used features with <code>React.lazy</code>, defer third-party scripts and break long handlers into smaller steps.</div><div class="wh">MFE + Host</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">Heavy hydration in the host</span><span class="tags"><i>LCP</i><i>INP</i></span></summary><div class="fbody"><div class="cz">The host hydrates the whole page before the MFE even starts loading. The main thread stays busy, the remote waits and the first interactions are slow to respond.</div><div class="fx">Send less client JavaScript from the host: keep what you can in Server Components and lazy-load client components below the fold (<a href="https://nextjs.org/docs/app/guides/lazy-loading">Next.js: lazy loading</a>). Start loading the remote without waiting for hydration to finish.</div><div class="wh">Host</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">A chatty frontend</span><span class="tags"><i>Apdex</i></span></summary><div class="fbody"><div class="cz">Several sequential calls to build one screen, each paying its own latency.</div><div class="fx">One endpoint per view in the BFF, calls in parallel, and a per-route histogram so you see which route drags the score.</div><div class="wh">MFE + API / BFF</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">Slow work behind the endpoint</span><span class="tags"><i>Apdex</i></span></summary><div class="fbody"><div class="cz">N+1 queries, no cache for read-heavy responses, cold or undersized capacity.</div><div class="fx">Fix the query, cache reads, and set a minimum capacity and scaling on latency for the service behind the load balancer.</div><div class="wh">API + Infra</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">Errors read as frustration</span><span class="tags"><i>Apdex</i></span></summary><div class="fbody"><div class="cz">A failing dependency counts exactly like a slow one.</div><div class="fx">Look at the error rate first, then at the latency. Add timeouts and retries where they are safe.</div><div class="wh">API</div></div></details></li>
+  <li><details><summary><span class="ic" aria-hidden="true"></span><span class="ttl">A number nobody chose</span><span class="tags"><i>Apdex</i></span></summary><div class="fbody"><div class="cz">One T for every route, or buckets that do not match T and 4T, so the query cannot compute it.</div><div class="fx">Choose T per kind of route, write it down, and make the histogram buckets match.</div><div class="wh">Monitoring</div></div></details></li>
+</ul>
+
+<h3 id="host">The host: what it can do, and when it is the problem</h3>
+<p>Some of the numbers above are decided outside the MFE. The host renders on the server, but the MFE only exists in the browser, and that gap shapes the page (Next.js also lets a client component skip server rendering with <code>ssr: false</code>, see <a href="https://nextjs.org/docs/app/guides/lazy-loading">Next.js: lazy loading</a>).</p>
+<div class="tldr">
+  <div class="card sp"><h3>What the host can do for the MFE</h3><ul>
+    <li>Reserve the MFE's slot in the server HTML, with a skeleton of the right size. That removes a layout shift and gives the browser something to paint.</li>
+    <li>Preload the MFE's entry file in the <code>&lt;head&gt;</code>, so the waterfall starts at the first byte and not after hydration.</li>
+    <li>Put the page shell in the first response and keep the server fast, so TTFB does not eat the LCP budget.</li>
+    <li>Own the shared dependencies, so there is only one React.</li>
+  </ul></div>
+  <div class="card se"><h3>When the host is the problem</h3><ul>
+    <li><b>TTFB is high.</b> Sentry shows a slow first byte on pages with and without the MFE. The MFE cannot fix that.</li>
+    <li><b>The LCP element is not the MFE's.</b> Faro's attribution points to a host element, like a banner or header image.</li>
+    <li><b>INP is poor away from the MFE.</b> The host's own scripts and third parties keep the main thread busy.</li>
+    <li><b>Hydration is heavy.</b> The host hydrates a lot before the MFE even starts to load.</li>
+  </ul></div>
+</div>
+<p class="opinion">What settles who owns a bad number is the attribution, not opinions. The LCP element and the timing breakdown say whether the time went to the first byte, to discovering the resource, to downloading it or to rendering it (<a href="https://web.dev/articles/optimize-lcp">web.dev</a>). Only then does a ticket go to someone's backlog.</p>
+
+<h3 id="read">Reading both signals</h3>
+<p>This is where the two metrics pay for themselves. Choose the state of each one:</p>
+<div class="matrix" data-matrix>
+  <div class="axes">
+  <div class="axis"><b>Core Web Vitals (Sentry, Faro)</b>
+    <div class="seg plain" data-axis="cwv" role="group" aria-label="Core Web Vitals"><button data-value="good" aria-pressed="false">Good</button><button data-value="bad" aria-pressed="false">Poor</button></div></div>
+  <div class="axis"><b>Apdex (Prometheus)</b>
+    <div class="seg plain" data-axis="apdex" role="group" aria-label="Apdex"><button data-value="good" aria-pressed="false">Good</button><button data-value="bad" aria-pressed="false">Poor</button></div></div>
+  </div>
+  <div class="out" aria-live="polite">
+    <p data-idle>Pick one state for each metric to see the likely story.</p>
+    <p data-case="good-good" hidden><b>Healthy.</b> Keep an eye on the trend per release, and on the share of users in the 25% tail that the 75th percentile hides.</p>
+    <p data-case="bad-good" hidden><b>The problem is on the client side or on the way there.</b> The API answers in time, but the page is slow. Look at the waterfall, bundle size, cache headers, the empty slot and the host's TTFB.</p>
+    <p data-case="good-bad" hidden><b>The page hides a slow backend.</b> Skeletons, caches or content above the fold are masking slow calls, or the slow endpoints are not on the critical path yet. It will show up in INP or in the next feature that needs that data.</p>
+    <p data-case="bad-bad" hidden><b>Start with the backend.</b> Slow or failing calls are the likeliest cause of the poor page. Fix the endpoint first, then measure the vitals again before touching the frontend.</p>
+  </div>
+</div>
+<p class="opinion inf">The second case is the least intuitive one. A good CWV does not prove the backend is healthy, because a good front end can hide it for a while.</p>
+
+<h2 id="conclusion">3. Conclusion</h2>
+<p>For this kind of system, the work splits like this:</p>
+<div class="scroll"><table class="stack">
+<tr><th>Tool</th><th>Metric</th><th>Cut</th><th>Question it answers</th></tr>
+<tr><td class="sp">Sentry</td><td data-label="Metric">Core Web Vitals</td><td data-label="Cut">From infrastructure response to browser render</td><td data-label="Question it answers">Does the page feel fast to real users?</td></tr>
+<tr><td class="bd">Grafana Faro</td><td data-label="Metric">Vitals, errors, traces</td><td data-label="Cut">The MFE alone, per release</td><td data-label="Question it answers">Is the micro frontend healthy?</td></tr>
+<tr><td class="se">Prometheus</td><td data-label="Metric">Apdex</td><td data-label="Cut">The main endpoint the frontend calls</td><td data-label="Question it answers">Are the calls answering in time?</td></tr>
+</table></div>
+<p>If you want to try this without building everything, start small and in this order:</p>
+<ol>
+  <li><b>One lens on the page.</b> Turn on Sentry tracing and look at LCP and TTFB for the pages that load the MFE. Get a baseline before changing anything.</li>
+  <li><b>One name for the MFE.</b> Initialize Faro inside it with its own name and version, so the next release has something to be compared with.</li>
+  <li><b>One Apdex you wrote down.</b> Pick T for your main endpoint, add the matching buckets and chart the query.</li>
+</ol>
+<p class="take">A good score is not the goal, a smaller distance to the problem is. CWV tell you the page hurts, Apdex helps find the call, and the attribution says whose it is. Read them together, change one thing, measure again.</p>
+
+<h2 id="references">References</h2>
+<ul class="sources">
+<li><a href="https://web.dev/articles/vitals">web.dev: Web Vitals</a></li>
+<li><a href="https://web.dev/articles/optimize-lcp">web.dev: Optimize Largest Contentful Paint</a></li>
+<li><a href="https://docs.sentry.io/product/dashboards/sentry-dashboards/frontend/web-vitals.md">Sentry: Web Vitals and performance score</a></li>
+<li><a href="https://docs.sentry.io/platforms/javascript/guides/react/tracing/">Sentry: Set up tracing for React</a></li>
+<li><a href="https://grafana.com/docs/grafana-cloud/monitor-applications/frontend-observability/">Grafana Cloud: Frontend Observability</a></li>
+<li><a href="https://grafana.com/docs/grafana-cloud/monitor-applications/frontend-observability/instrument/web-vitals/">Grafana Cloud: Web vitals instrumentation</a></li>
+<li><a href="https://github.com/grafana/faro-web-sdk">Grafana Faro Web SDK</a></li>
+<li><a href="https://prometheus.io/docs/practices/histograms/">Prometheus: Histograms and summaries (Apdex)</a></li>
+<li><a href="https://docs.newrelic.com/docs/apm/new-relic-apm/apdex/apdex-measure-user-satisfaction/">New Relic: Apdex, measuring user satisfaction</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html">AWS: CloudFront, managing how long content stays in the cache</a></li>
+<li><a href="https://module-federation.io/">Module Federation</a></li>
+<li><a href="https://rspack.rs/plugins/webpack/module-federation-plugin">Rspack: Module Federation plugin</a></li>
+<li><a href="https://openedx.atlassian.net/wiki/spaces/COMM/pages/4802543637">Open edX: Modules as plugins, lazy loading (meeting notes)</a></li>
+<li><a href="https://www.debugbear.com/blog/chrome-extension-performance-2021">DebugBear: How Do Chrome Extensions Impact Browser Performance?</a></li>
+<li><a href="https://arxiv.org/abs/2404.06827">Jin, Li and Zou: Impact of Extensions on Browser Performance, an Empirical Study on Google Chrome</a></li>
+<li><a href="https://nextjs.org/docs/app/guides/lazy-loading">Next.js: Lazy loading</a></li>
+</ul>
+</div>

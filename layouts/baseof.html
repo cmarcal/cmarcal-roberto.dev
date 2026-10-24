@@ -15,7 +15,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,700;1,400&display=swap">
   {{ $css := resources.Get "css/main.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+  {{ if and .IsPage (eq .Section "articles") }}{{ with resources.Get "css/sidetoc.css" }}{{ $t := . | minify | fingerprint }}<link rel="stylesheet" href="{{ $t.RelPermalink }}">{{ end }}{{ end }}
   {{ range .Params.styles }}{{ with resources.Get . }}{{ $s := . | minify | fingerprint }}<link rel="stylesheet" href="{{ $s.RelPermalink }}">{{ end }}{{ end }}
+  {{ if and .IsPage (eq .Section "articles") }}{{ with resources.Get "js/sidetoc.js" }}{{ $o := . | minify | fingerprint }}<script src="{{ $o.RelPermalink }}" defer></script>{{ end }}{{ end }}
   {{ with resources.Get "js/network.js" }}{{ $n := . | minify | fingerprint }}<script src="{{ $n.RelPermalink }}" defer></script>{{ end }}
   {{ if .IsHome }}{{ with resources.Get "js/rotator.js" }}{{ $r := . | minify | fingerprint }}<script src="{{ $r.RelPermalink }}" defer></script>{{ end }}{{ end }}
   {{ if .IsHome }}{{ with resources.Get "js/stack-reveal.js" }}{{ $v := . | minify | fingerprint }}<script src="{{ $v.RelPermalink }}" defer></script>{{ end }}{{ end }}

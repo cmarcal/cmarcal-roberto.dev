@@ -32,6 +32,9 @@ other = "Ler artigo"
 [allArticles]
 other = "Todos os artigos"
 
+[onThisPage]
+other = "Nesta página"
+
 [noArticles]
 other = "Ainda não há artigos. Volte em breve."
 

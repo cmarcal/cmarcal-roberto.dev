@@ -32,6 +32,9 @@ other = "Read article"
 [allArticles]
 other = "All articles"
 
+[onThisPage]
+other = "On this page"
+
 [noArticles]
 other = "No articles yet. Check back soon."
 

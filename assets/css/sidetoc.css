@@ -1,0 +1,18 @@
+/* Side table of contents, shared by every article. Shown only where there is room right of the text. */
+.ax{position:relative}
+.ax .sidetoc{display:none}
+@media(min-width:1140px){
+  .ax.has-sidetoc .toc{display:none}
+  .ax .sidetoc{display:block;position:absolute;top:0;bottom:0;left:calc(100% + 1.5rem);width:12.5rem}
+  .ax .sidetoc-in{position:sticky;top:1.5rem;max-height:calc(100vh - 3rem);overflow-y:auto;font:.8rem/1.35 system-ui,sans-serif}
+  .ax .sidetoc-title{margin:0 0 .5rem;font:700 .68rem system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+  .ax .sidetoc ul{list-style:none;margin:0;padding:0}
+  .ax .sidetoc li{margin:0}
+  .ax .sidetoc a{display:block;padding:.28rem .6rem;border-left:2px solid var(--rule);color:var(--mut);text-decoration:none;transition:color .2s,border-color .2s}
+  .ax .sidetoc .l2 a{margin-top:.5rem;font-weight:600}
+  .ax .sidetoc .l3 a{padding-left:1.2rem}
+  .ax .sidetoc a:hover,.ax .sidetoc a:focus-visible{color:var(--fg)}
+  .ax .sidetoc a[aria-current]{color:var(--fg);border-left-color:var(--fg)}
+}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media(prefers-reduced-motion:reduce){.ax .sidetoc a{transition:none}}
